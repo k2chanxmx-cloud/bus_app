@@ -26,7 +26,6 @@
       --border: rgba(0, 0, 0, 0.08);
       --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
       --fire: #ef4444;
-      --fire-soft: #fff1f2;
     }
 
     * {
@@ -37,13 +36,7 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Hiragino Sans",
-        "Yu Gothic",
-        "Meiryo",
-        sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
       background:
         radial-gradient(circle at top left, #e0f2fe 0, transparent 34%),
         radial-gradient(circle at bottom right, #ede9fe 0, transparent 32%),
@@ -55,10 +48,7 @@
       max-width: 430px;
       margin: 0 auto;
       min-height: 100vh;
-      padding:
-        calc(env(safe-area-inset-top) + 18px)
-        18px
-        calc(env(safe-area-inset-bottom) + 24px);
+      padding: calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 24px);
     }
 
     .app-header {
@@ -117,7 +107,6 @@
       color: var(--sub);
       background: #eef2f7;
       cursor: pointer;
-      transition: 0.2s;
     }
 
     .tab.active {
@@ -215,7 +204,6 @@
       border-radius: 22px;
       border: 1px solid var(--border);
       overflow: hidden;
-      transition: 0.2s;
     }
 
     .bus-card:first-child {
@@ -230,10 +218,6 @@
       cursor: pointer;
     }
 
-    .bus-header:active {
-      background: #f3f4f6;
-    }
-
     .bus-time {
       font-size: 28px;
       font-weight: 900;
@@ -244,16 +228,13 @@
       font-size: 14px;
       font-weight: 800;
       color: var(--sub);
-      text-align: right;
       display: flex;
       align-items: center;
       gap: 8px;
+      white-space: nowrap;
     }
 
     .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
       border-radius: 8px;
       padding: 5px 9px;
       font-size: 13px;
@@ -276,61 +257,51 @@
     }
 
     .detail.open {
-      max-height: 260px;
+      max-height: 240px;
     }
 
     .detail-content {
       margin: 0 14px 14px;
-      padding: 14px;
+      padding: 16px;
       border-radius: 18px;
       border: 1px solid #dbeafe;
       background: #eff6ff;
     }
 
-    .detail-inner {
-      display: grid;
-      grid-template-columns: 82px 1fr;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .goenji-mini {
-      width: 76px;
-      height: 76px;
-      border-radius: 20px;
-      object-fit: cover;
-      background: #fff;
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
-    }
-
     .detail-title {
+      text-align: center;
       font-size: 15px;
       font-weight: 900;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
     }
 
     .detail-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 9px;
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
       font-size: 14px;
     }
 
     .detail-key {
       color: var(--sub);
-      font-weight: 700;
+      font-weight: 800;
       white-space: nowrap;
     }
 
     .detail-value {
-      font-weight: 800;
+      font-weight: 900;
       text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .goenji-text {
       color: var(--fire);
       font-weight: 900;
+      white-space: nowrap;
     }
 
     .empty {
@@ -464,8 +435,8 @@
     }
 
     function makeGoenjiMinutes(index) {
-      const samples = ["約 2分", "約 3分", "確認中", "なし"];
-      return index === 0 ? "約 2分" : samples[index % samples.length];
+      const samples = ["約2分", "約3分", "確認中", "なし"];
+      return index === 0 ? "約2分" : samples[index % samples.length];
     }
 
     async function loadBuses() {
@@ -478,7 +449,6 @@
         const data = await res.json();
 
         document.getElementById("stop").textContent = data.stop;
-
         document.getElementById("direction").textContent = data.direction;
 
         document.getElementById("now").textContent =
@@ -525,32 +495,26 @@
 
             <div id="${detailId}" class="detail">
               <div class="detail-content">
-                <div class="detail-inner">
-                  <img class="goenji-mini" src="/static/icon-512.png" alt="豪炎寺アイコン">
+                <div class="detail-title">接近情報</div>
 
-                  <div>
-                    <div class="detail-title">接近情報</div>
+                <div class="detail-row">
+                  <div class="detail-key">現在地</div>
+                  <div class="detail-value">千田付近</div>
+                </div>
 
-                    <div class="detail-row">
-                      <div class="detail-key">現在地</div>
-                      <div class="detail-value">千田付近を走行中</div>
-                    </div>
+                <div class="detail-row">
+                  <div class="detail-key">停留所数</div>
+                  <div class="detail-value">あと3停留所</div>
+                </div>
 
-                    <div class="detail-row">
-                      <div class="detail-key">停留所数</div>
-                      <div class="detail-value">あと 3 停留所</div>
-                    </div>
+                <div class="detail-row">
+                  <div class="detail-key">豪炎寺</div>
+                  <div class="detail-value goenji-text">🔥 豪炎寺：${goenjiValue}</div>
+                </div>
 
-                    <div class="detail-row">
-                      <div class="detail-key">豪炎寺</div>
-                      <div class="detail-value goenji-text">🔥 豪炎寺：${goenjiValue}</div>
-                    </div>
-
-                    <div class="detail-row">
-                      <div class="detail-key">車両番号</div>
-                      <div class="detail-value">T-E1234</div>
-                    </div>
-                  </div>
+                <div class="detail-row">
+                  <div class="detail-key">車両番号</div>
+                  <div class="detail-value">T-E1234</div>
                 </div>
               </div>
             </div>

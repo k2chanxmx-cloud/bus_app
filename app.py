@@ -1,8 +1,10 @@
 from flask import Flask, render_template, jsonify
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import jpholiday
 
 app = Flask(__name__)
+
+JST = timezone(timedelta(hours=9))
 
 BUS_TIMES = {
     "kameido": {
@@ -56,7 +58,7 @@ BUS_TIMES = {
 
 
 def get_day_type():
-    today = datetime.now()
+    today = datetime.now(JST)
 
     if jpholiday.is_holiday(today.date()) or today.weekday() == 6:
         return "holiday"
@@ -67,7 +69,7 @@ def get_day_type():
 
 
 def get_remaining_buses(direction_key):
-    now = datetime.now()
+    now = datetime.now(JST)
     now_minutes = now.hour * 60 + now.minute
 
     day_type = get_day_type()

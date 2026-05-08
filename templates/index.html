@@ -11,7 +11,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="バス" />
-
   <link rel="apple-touch-icon" href="/static/icon-512.png" />
 
   <style>
@@ -149,6 +148,13 @@
       letter-spacing: -0.06em;
     }
 
+    .remaining {
+      margin-top: 4px;
+      font-size: 22px;
+      font-weight: 900;
+      color: #93c5fd;
+    }
+
     .count {
       margin-top: 4px;
       font-size: 13px;
@@ -186,6 +192,7 @@
       color: var(--sub);
       font-size: 13px;
       font-weight: 800;
+      text-align: right;
     }
 
     .empty {
@@ -248,6 +255,7 @@
       <div id="nextBox" class="next-box">
         <div class="next-label">いちばん近いバス</div>
         <div id="nextTime" class="next-time">--:--</div>
+        <div id="remaining" class="remaining">--</div>
         <div id="count" class="count">読み込み中...</div>
       </div>
 
@@ -273,6 +281,21 @@
       return "";
     }
 
+    function calcRemainingMinutes(busTime, nowTime) {
+      const [busHour, busMinute] = busTime.split(":").map(Number);
+      const [nowHour, nowMinute] = nowTime.split(":").map(Number);
+
+      const busTotal = busHour * 60 + busMinute;
+      const nowTotal = nowHour * 60 + nowMinute;
+
+      return busTotal - nowTotal;
+    }
+
+    function getRemainingText(diff) {
+      if (diff <= 0) return "まもなく発車";
+      return `あと${diff}分`;
+    }
+
     function changeDirection(direction) {
       currentDirection = direction;
 
@@ -285,10 +308,12 @@
     async function loadBuses() {
       const list = document.getElementById("list");
       const nextTime = document.getElementById("nextTime");
+      const remaining = document.getElementById("remaining");
       const count = document.getElementById("count");
 
       list.innerHTML = "";
       nextTime.textContent = "--:--";
+      remaining.textContent = "--";
       count.textContent = "読み込み中...";
 
       try {
@@ -302,21 +327,29 @@
 
         if (!data.buses || data.buses.length === 0) {
           nextTime.textContent = "終了";
+          remaining.textContent = "--";
           count.textContent = "本日の残りの便はありません";
           list.innerHTML = `<div class="empty">本日のバスは終了しました</div>`;
           return;
         }
 
-        nextTime.textContent = data.buses[0];
+        const firstBus = data.buses[0];
+        const diff = calcRemainingMinutes(firstBus, data.now);
+
+        nextTime.textContent = firstBus;
+        remaining.textContent = getRemainingText(diff);
         count.textContent = `このあと ${data.buses.length} 本あります`;
 
         data.buses.forEach((time, index) => {
           const row = document.createElement("div");
           row.className = "bus-row";
 
+          const diffMin = calcRemainingMinutes(time, data.now);
+          const note = index === 0 ? "次発" : getRemainingText(diffMin);
+
           row.innerHTML = `
             <div class="bus-time">${time}</div>
-            <div class="bus-note">${index === 0 ? "次発" : `${index + 1}本目`}</div>
+            <div class="bus-note">${note}</div>
           `;
 
           list.appendChild(row);
@@ -324,6 +357,7 @@
 
       } catch (e) {
         nextTime.textContent = "エラー";
+        remaining.textContent = "--";
         count.textContent = "時刻表を取得できませんでした";
         list.innerHTML = `<div class="empty">通信エラーです</div>`;
       }
@@ -336,6 +370,8 @@
     }
 
     loadBuses();
+
+    setInterval(loadBuses, 60000);
   </script>
 </body>
 </html>

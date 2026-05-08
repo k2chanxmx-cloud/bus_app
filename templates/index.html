@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <title>バス時刻表</title>
+
+  <link rel="manifest" href="/static/manifest.json" />
+  <meta name="theme-color" content="#f4f6fb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="バス" />
+
+  <link rel="apple-touch-icon" href="/static/icon-512.png" />
+
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: rgba(255, 255, 255, 0.88);
+      --text: #1f2937;
+      --sub: #6b7280;
+      --main: #2563eb;
+      --main-soft: #dbeafe;
+      --border: rgba(0, 0, 0, 0.08);
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+      background:
+        radial-gradient(circle at top left, #e0f2fe 0, transparent 34%),
+        radial-gradient(circle at bottom right, #ede9fe 0, transparent 32%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 24px);
+    }
+
+    .header {
+      margin-bottom: 18px;
+    }
+
+    .small {
+      color: var(--sub);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    h1 {
+      margin: 6px 0 0;
+      font-size: 31px;
+      line-height: 1.15;
+      letter-spacing: -0.04em;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      padding: 18px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .tab {
+      border: 0;
+      border-radius: 18px;
+      padding: 13px 10px;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--sub);
+      background: #eef2f7;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: #fff;
+      background: var(--main);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
+    }
+
+    .info {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 22px;
+      background: var(--main-soft);
+    }
+
+    .stop {
+      font-size: 14px;
+      color: var(--sub);
+      font-weight: 800;
+    }
+
+    .direction {
+      margin-top: 4px;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .now {
+      margin-top: 6px;
+      color: var(--sub);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .next-box {
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: 24px;
+      background: #111827;
+      color: #fff;
+    }
+
+    .next-label {
+      font-size: 13px;
+      opacity: 0.72;
+      font-weight: 800;
+    }
+
+    .next-time {
+      margin-top: 2px;
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: -0.06em;
+    }
+
+    .count {
+      margin-top: 4px;
+      font-size: 13px;
+      opacity: 0.72;
+      font-weight: 700;
+    }
+
+    .list {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .bus-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 15px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--border);
+    }
+
+    .bus-row:first-child {
+      border: 2px solid var(--main);
+    }
+
+    .bus-time {
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .bus-note {
+      color: var(--sub);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .empty {
+      margin-top: 16px;
+      padding: 24px 14px;
+      text-align: center;
+      color: var(--sub);
+      font-weight: 800;
+      background: #fff;
+      border-radius: 20px;
+    }
+
+    .reload {
+      width: 100%;
+      margin-top: 14px;
+      border: 0;
+      border-radius: 20px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--main);
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+      cursor: pointer;
+    }
+
+    .footer {
+      margin-top: 14px;
+      text-align: center;
+      color: var(--sub);
+      font-size: 12px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <section class="header">
+      <div class="small">Tatekawa Ohashi Kitazume</div>
+      <h1>次のバス</h1>
+    </section>
+
+    <section class="card">
+      <div class="tabs">
+        <button id="btn-kameido" class="tab active" onclick="changeDirection('kameido')">
+          亀戸駅方面
+        </button>
+        <button id="btn-toyocho" class="tab" onclick="changeDirection('toyocho')">
+          東陽町方面
+        </button>
+      </div>
+
+      <div class="info">
+        <div id="stop" class="stop">竪川大橋北詰</div>
+        <div id="direction" class="direction">亀戸駅方面</div>
+        <div id="now" class="now">現在時刻を取得中...</div>
+      </div>
+
+      <div id="nextBox" class="next-box">
+        <div class="next-label">いちばん近いバス</div>
+        <div id="nextTime" class="next-time">--:--</div>
+        <div id="count" class="count">読み込み中...</div>
+      </div>
+
+      <div id="list" class="list"></div>
+
+      <button class="reload" onclick="loadBuses()">
+        更新する
+      </button>
+    </section>
+
+    <div class="footer">
+      竪川大橋北詰 バス時刻表
+    </div>
+  </main>
+
+  <script>
+    let currentDirection = "kameido";
+
+    function getDayTypeLabel(dayType) {
+      if (dayType === "weekday") return "平日";
+      if (dayType === "saturday") return "土曜";
+      if (dayType === "holiday") return "休日";
+      return "";
+    }
+
+    function changeDirection(direction) {
+      currentDirection = direction;
+
+      document.getElementById("btn-kameido").classList.toggle("active", direction === "kameido");
+      document.getElementById("btn-toyocho").classList.toggle("active", direction === "toyocho");
+
+      loadBuses();
+    }
+
+    async function loadBuses() {
+      const list = document.getElementById("list");
+      const nextTime = document.getElementById("nextTime");
+      const count = document.getElementById("count");
+
+      list.innerHTML = "";
+      nextTime.textContent = "--:--";
+      count.textContent = "読み込み中...";
+
+      try {
+        const res = await fetch(`/api/buses/${currentDirection}`);
+        const data = await res.json();
+
+        document.getElementById("stop").textContent = data.stop;
+        document.getElementById("direction").textContent = data.direction;
+        document.getElementById("now").textContent =
+          `現在 ${data.now} / ${getDayTypeLabel(data.day_type)}ダイヤ`;
+
+        if (!data.buses || data.buses.length === 0) {
+          nextTime.textContent = "終了";
+          count.textContent = "本日の残りの便はありません";
+          list.innerHTML = `<div class="empty">本日のバスは終了しました</div>`;
+          return;
+        }
+
+        nextTime.textContent = data.buses[0];
+        count.textContent = `このあと ${data.buses.length} 本あります`;
+
+        data.buses.forEach((time, index) => {
+          const row = document.createElement("div");
+          row.className = "bus-row";
+
+          row.innerHTML = `
+            <div class="bus-time">${time}</div>
+            <div class="bus-note">${index === 0 ? "次発" : `${index + 1}本目`}</div>
+          `;
+
+          list.appendChild(row);
+        });
+
+      } catch (e) {
+        nextTime.textContent = "エラー";
+        count.textContent = "時刻表を取得できませんでした";
+        list.innerHTML = `<div class="empty">通信エラーです</div>`;
+      }
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/static/service-worker.js");
+      });
+    }
+
+    loadBuses();
+  </script>
+</body>
+</html>

@@ -18,13 +18,15 @@
   <style>
     :root {
       --bg: #f4f6fb;
-      --card: rgba(255,255,255,0.88);
+      --card: rgba(255, 255, 255, 0.88);
       --text: #1f2937;
       --sub: #6b7280;
       --main: #2563eb;
       --main-soft: #dbeafe;
-      --border: rgba(0,0,0,0.08);
-      --shadow: 0 18px 40px rgba(15,23,42,0.12);
+      --border: rgba(0, 0, 0, 0.08);
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+      --fire: #ef4444;
+      --fire-soft: #fff1f2;
     }
 
     * {
@@ -42,12 +44,10 @@
         "Yu Gothic",
         "Meiryo",
         sans-serif;
-
       background:
         radial-gradient(circle at top left, #e0f2fe 0, transparent 34%),
         radial-gradient(circle at bottom right, #ede9fe 0, transparent 32%),
         var(--bg);
-
       color: var(--text);
     }
 
@@ -55,11 +55,26 @@
       max-width: 430px;
       margin: 0 auto;
       min-height: 100vh;
-
       padding:
         calc(env(safe-area-inset-top) + 18px)
         18px
         calc(env(safe-area-inset-bottom) + 24px);
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .header-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      object-fit: cover;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+      background: #fff;
     }
 
     .small {
@@ -70,7 +85,7 @@
     }
 
     h1 {
-      margin: 6px 0 18px;
+      margin: 2px 0 0;
       font-size: 31px;
       line-height: 1.15;
       letter-spacing: -0.04em;
@@ -108,7 +123,7 @@
     .tab.active {
       color: #fff;
       background: var(--main);
-      box-shadow: 0 10px 20px rgba(37,99,235,0.25);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
     }
 
     .info {
@@ -116,6 +131,15 @@
       padding: 14px;
       border-radius: 22px;
       background: var(--main-soft);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bus-stop-icon {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
     }
 
     .stop {
@@ -152,6 +176,13 @@
       font-weight: 800;
     }
 
+    .next-main {
+      display: flex;
+      align-items: baseline;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
     .next-time {
       margin-top: 2px;
       font-size: 48px;
@@ -163,7 +194,7 @@
       margin-top: 4px;
       font-size: 22px;
       font-weight: 900;
-      color: #93c5fd;
+      color: #60a5fa;
     }
 
     .count {
@@ -185,6 +216,10 @@
       border: 1px solid var(--border);
       overflow: hidden;
       transition: 0.2s;
+    }
+
+    .bus-card:first-child {
+      border: 2px solid var(--main);
     }
 
     .bus-header {
@@ -210,6 +245,27 @@
       font-weight: 800;
       color: var(--sub);
       text-align: right;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      padding: 5px 9px;
+      font-size: 13px;
+      font-weight: 900;
+      color: #fff;
+      background: var(--main);
+    }
+
+    .chevron {
+      color: var(--sub);
+      font-size: 18px;
+      font-weight: 900;
     }
 
     .detail {
@@ -220,34 +276,70 @@
     }
 
     .detail.open {
-      max-height: 220px;
+      max-height: 260px;
     }
 
     .detail-content {
-      padding: 16px;
-      border-top: 1px solid rgba(0,0,0,0.05);
+      margin: 0 14px 14px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid #dbeafe;
+      background: #eff6ff;
+    }
+
+    .detail-inner {
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .goenji-mini {
+      width: 76px;
+      height: 76px;
+      border-radius: 20px;
+      object-fit: cover;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
     }
 
     .detail-title {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 900;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .detail-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 10px;
+      gap: 12px;
+      margin-bottom: 9px;
       font-size: 14px;
     }
 
     .detail-key {
       color: var(--sub);
       font-weight: 700;
+      white-space: nowrap;
     }
 
     .detail-value {
       font-weight: 800;
+      text-align: right;
+    }
+
+    .goenji-text {
+      color: var(--fire);
+      font-weight: 900;
+    }
+
+    .empty {
+      padding: 24px;
+      text-align: center;
+      background: #fff;
+      border-radius: 22px;
+      font-weight: 800;
+      color: var(--sub);
     }
 
     .reload {
@@ -260,258 +352,234 @@
       font-weight: 900;
       color: var(--main);
       background: #fff;
-      box-shadow: 0 8px 18px rgba(15,23,42,0.08);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
       cursor: pointer;
     }
   </style>
 </head>
 
 <body>
+  <main class="app">
 
-<main class="app">
-
-  <div class="small">Tatekawa Ohashi Kitazume</div>
-  <h1>次のバス</h1>
-
-  <section class="card">
-
-    <div class="tabs">
-      <button
-        id="btn-kameido"
-        class="tab active"
-        onclick="changeDirection('kameido')"
-      >
-        亀戸駅方面
-      </button>
-
-      <button
-        id="btn-toyocho"
-        class="tab"
-        onclick="changeDirection('toyocho')"
-      >
-        東陽町方面
-      </button>
-    </div>
-
-    <div class="info">
-      <div id="stop" class="stop">竪川大橋北詰</div>
-      <div id="direction" class="direction">亀戸駅方面</div>
-      <div id="now" class="now">読み込み中...</div>
-    </div>
-
-    <div class="next-box">
-      <div class="next-label">いちばん近いバス</div>
-
-      <div id="nextTime" class="next-time">
-        --:--
-      </div>
-
-      <div id="remaining" class="remaining">
-        --
-      </div>
-
-      <div id="count" class="count">
-        --
+    <div class="app-header">
+      <img class="header-icon" src="/static/icon-512.png" alt="アプリアイコン">
+      <div>
+        <div class="small">竪川大橋北詰</div>
+        <h1>次のバス</h1>
       </div>
     </div>
 
-    <div id="list" class="list"></div>
+    <section class="card">
 
-    <button class="reload" onclick="loadBuses()">
-      更新する
-    </button>
+      <div class="tabs">
+        <button id="btn-kameido" class="tab active" onclick="changeDirection('kameido')">
+          亀戸駅方面
+        </button>
 
-  </section>
+        <button id="btn-toyocho" class="tab" onclick="changeDirection('toyocho')">
+          東陽町方面
+        </button>
+      </div>
 
-</main>
+      <div class="info">
+        <svg class="bus-stop-icon" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="18" r="14" fill="#ffffff" stroke="#111827" stroke-width="4"/>
+          <rect x="20" y="16" width="24" height="5" rx="2" fill="#2563eb"/>
+          <rect x="29" y="32" width="6" height="26" rx="3" fill="#111827"/>
+          <rect x="20" y="56" width="24" height="4" rx="2" fill="#111827"/>
+        </svg>
 
-<script>
-
-let currentDirection = "kameido";
-
-function getDayTypeLabel(dayType) {
-  if (dayType === "weekday") return "平日";
-  if (dayType === "saturday") return "土曜";
-  if (dayType === "holiday") return "休日";
-  return "";
-}
-
-function calcRemainingMinutes(busTime, nowTime) {
-  const [bh, bm] = busTime.split(":").map(Number);
-  const [nh, nm] = nowTime.split(":").map(Number);
-
-  return (bh * 60 + bm) - (nh * 60 + nm);
-}
-
-function getRemainingText(diff) {
-  if (diff <= 0) return "まもなく発車";
-  return `あと${diff}分`;
-}
-
-function changeDirection(direction) {
-
-  currentDirection = direction;
-
-  document
-    .getElementById("btn-kameido")
-    .classList.toggle("active", direction === "kameido");
-
-  document
-    .getElementById("btn-toyocho")
-    .classList.toggle("active", direction === "toyocho");
-
-  loadBuses();
-}
-
-function toggleDetail(id) {
-
-  const detail = document.getElementById(id);
-
-  detail.classList.toggle("open");
-}
-
-async function loadBuses() {
-
-  const list = document.getElementById("list");
-
-  list.innerHTML = "";
-
-  try {
-
-    const res = await fetch(`/api/buses/${currentDirection}`);
-
-    const data = await res.json();
-
-    document.getElementById("stop").textContent = data.stop;
-
-    document.getElementById("direction").textContent =
-      data.direction;
-
-    document.getElementById("now").textContent =
-      `現在 ${data.now} / ${getDayTypeLabel(data.day_type)}ダイヤ`;
-
-    if (!data.buses || data.buses.length === 0) {
-
-      list.innerHTML = `
-        <div style="
-          padding:24px;
-          text-align:center;
-          background:#fff;
-          border-radius:22px;
-          font-weight:800;
-        ">
-          本日のバスは終了しました
+        <div>
+          <div id="stop" class="stop">竪川大橋北詰</div>
+          <div id="direction" class="direction">亀戸駅方面</div>
+          <div id="now" class="now">読み込み中...</div>
         </div>
-      `;
+      </div>
 
-      return;
+      <div class="next-box">
+        <div class="next-label">いちばん近いバス</div>
+
+        <div class="next-main">
+          <div id="nextTime" class="next-time">--:--</div>
+          <div id="remaining" class="remaining">--</div>
+        </div>
+
+        <div id="count" class="count">--</div>
+      </div>
+
+      <div id="list" class="list"></div>
+
+      <button class="reload" onclick="loadBuses()">
+        ⟳ 更新する
+      </button>
+
+    </section>
+
+  </main>
+
+  <script>
+    let currentDirection = "kameido";
+
+    function getDayTypeLabel(dayType) {
+      if (dayType === "weekday") return "平日";
+      if (dayType === "saturday") return "土曜";
+      if (dayType === "holiday") return "日曜/祝日";
+      return "";
     }
 
-    const firstBus = data.buses[0];
+    function calcRemainingMinutes(busTime, nowTime) {
+      const [bh, bm] = busTime.split(":").map(Number);
+      const [nh, nm] = nowTime.split(":").map(Number);
+      return (bh * 60 + bm) - (nh * 60 + nm);
+    }
 
-    const firstDiff =
-      calcRemainingMinutes(firstBus, data.now);
+    function getRemainingText(diff) {
+      if (diff <= 0) return "まもなく発車";
+      return `あと ${diff} 分`;
+    }
 
-    document.getElementById("nextTime").textContent =
-      firstBus;
+    function changeDirection(direction) {
+      currentDirection = direction;
 
-    document.getElementById("remaining").textContent =
-      getRemainingText(firstDiff);
+      document
+        .getElementById("btn-kameido")
+        .classList.toggle("active", direction === "kameido");
 
-    document.getElementById("count").textContent =
-      `このあと ${data.buses.length} 本あります`;
+      document
+        .getElementById("btn-toyocho")
+        .classList.toggle("active", direction === "toyocho");
 
-    data.buses.forEach((time, index) => {
+      loadBuses();
+    }
 
-      const diff =
-        calcRemainingMinutes(time, data.now);
+    function toggleDetail(id) {
+      const detail = document.getElementById(id);
+      const arrow = document.getElementById(`${id}-arrow`);
 
-      const card = document.createElement("div");
+      detail.classList.toggle("open");
 
-      card.className = "bus-card";
+      if (arrow) {
+        arrow.textContent = detail.classList.contains("open") ? "⌃" : "⌄";
+      }
+    }
 
-      const detailId = `detail-${index}`;
+    function makeGoenjiMinutes(index) {
+      const samples = ["約 2分", "約 3分", "確認中", "なし"];
+      return index === 0 ? "約 2分" : samples[index % samples.length];
+    }
 
-      card.innerHTML = `
-        <div
-          class="bus-header"
-          onclick="toggleDetail('${detailId}')"
-        >
+    async function loadBuses() {
+      const list = document.getElementById("list");
 
-          <div class="bus-time">
-            ${time}
+      list.innerHTML = "";
+
+      try {
+        const res = await fetch(`/api/buses/${currentDirection}`);
+        const data = await res.json();
+
+        document.getElementById("stop").textContent = data.stop;
+
+        document.getElementById("direction").textContent = data.direction;
+
+        document.getElementById("now").textContent =
+          `現在 ${data.now} / ${getDayTypeLabel(data.day_type)}ダイヤ`;
+
+        if (!data.buses || data.buses.length === 0) {
+          document.getElementById("nextTime").textContent = "終了";
+          document.getElementById("remaining").textContent = "--";
+          document.getElementById("count").textContent = "本日の残りの便はありません";
+
+          list.innerHTML = `
+            <div class="empty">
+              本日のバスは終了しました
+            </div>
+          `;
+          return;
+        }
+
+        const firstBus = data.buses[0];
+        const firstDiff = calcRemainingMinutes(firstBus, data.now);
+
+        document.getElementById("nextTime").textContent = firstBus;
+        document.getElementById("remaining").textContent = getRemainingText(firstDiff);
+        document.getElementById("count").textContent =
+          `このあと ${data.buses.length} 本あります`;
+
+        data.buses.forEach((time, index) => {
+          const diff = calcRemainingMinutes(time, data.now);
+          const detailId = `detail-${index}`;
+          const goenjiValue = makeGoenjiMinutes(index);
+
+          const card = document.createElement("div");
+          card.className = "bus-card";
+
+          card.innerHTML = `
+            <div class="bus-header" onclick="toggleDetail('${detailId}')">
+              <div class="bus-time">${time}</div>
+
+              <div class="bus-note">
+                ${index === 0 ? '<span class="badge">次発</span>' : getRemainingText(diff)}
+                <span id="${detailId}-arrow" class="chevron">⌄</span>
+              </div>
+            </div>
+
+            <div id="${detailId}" class="detail">
+              <div class="detail-content">
+                <div class="detail-inner">
+                  <img class="goenji-mini" src="/static/icon-512.png" alt="豪炎寺アイコン">
+
+                  <div>
+                    <div class="detail-title">接近情報</div>
+
+                    <div class="detail-row">
+                      <div class="detail-key">現在地</div>
+                      <div class="detail-value">千田付近を走行中</div>
+                    </div>
+
+                    <div class="detail-row">
+                      <div class="detail-key">停留所数</div>
+                      <div class="detail-value">あと 3 停留所</div>
+                    </div>
+
+                    <div class="detail-row">
+                      <div class="detail-key">豪炎寺</div>
+                      <div class="detail-value goenji-text">🔥 豪炎寺：${goenjiValue}</div>
+                    </div>
+
+                    <div class="detail-row">
+                      <div class="detail-key">車両番号</div>
+                      <div class="detail-value">T-E1234</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
+          list.appendChild(card);
+        });
+
+      } catch (e) {
+        document.getElementById("nextTime").textContent = "エラー";
+        document.getElementById("remaining").textContent = "--";
+        document.getElementById("count").textContent = "時刻表を取得できませんでした";
+
+        list.innerHTML = `
+          <div class="empty">
+            通信エラーです
           </div>
+        `;
+      }
+    }
 
-          <div class="bus-note">
-            ${index === 0 ? "次発" : getRemainingText(diff)}
-          </div>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/static/service-worker.js");
+      });
+    }
 
-        </div>
-
-        <div id="${detailId}" class="detail">
-
-          <div class="detail-content">
-
-            <div class="detail-title">
-              接近情報
-            </div>
-
-            <div class="detail-row">
-              <div class="detail-key">現在位置</div>
-              <div class="detail-value">取得準備中</div>
-            </div>
-
-            <div class="detail-row">
-              <div class="detail-key">停留所数</div>
-              <div class="detail-value">--</div>
-            </div>
-
-            <div class="detail-row">
-              <div class="detail-key">遅延</div>
-              <div class="detail-value">--分</div>
-            </div>
-
-            <div class="detail-row">
-              <div class="detail-key">状態</div>
-              <div class="detail-value">API連携予定</div>
-            </div>
-
-          </div>
-
-        </div>
-      `;
-
-      list.appendChild(card);
-
-    });
-
-  } catch (e) {
-
-    list.innerHTML = `
-      <div style="
-        padding:24px;
-        text-align:center;
-        background:#fff;
-        border-radius:22px;
-        font-weight:800;
-      ">
-        通信エラーです
-      </div>
-    `;
-  }
-}
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/static/service-worker.js");
-  });
-}
-
-loadBuses();
-
-setInterval(loadBuses, 60000);
-
-</script>
-
+    loadBuses();
+    setInterval(loadBuses, 60000);
+  </script>
 </body>
 </html>

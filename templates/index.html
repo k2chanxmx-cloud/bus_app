@@ -2,11 +2,15 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
 
   <title>豪炎寺バス</title>
 
   <link rel="manifest" href="/static/manifest.json" />
+
   <meta name="theme-color" content="#f4f6fb" />
 
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,6 +20,7 @@
   <link rel="apple-touch-icon" href="/static/icon-512.png" />
 
   <style>
+
     :root {
       --bg: #f4f6fb;
       --card: rgba(255,255,255,0.88);
@@ -264,7 +269,7 @@
     }
 
     .detail.open {
-      max-height: 280px;
+      max-height: 260px;
     }
 
     .detail-content {
@@ -327,7 +332,10 @@
 
     .loading {
       opacity: 0.6;
+      font-weight: 700;
+      text-align: center;
     }
+
   </style>
 </head>
 
@@ -336,6 +344,7 @@
 <main class="app">
 
   <div class="app-header">
+
     <img
       class="header-icon"
       src="/static/icon-512.png"
@@ -346,6 +355,7 @@
       <div class="small">竪川大橋北詰</div>
       <h1>次のバス</h1>
     </div>
+
   </div>
 
   <section class="card">
@@ -373,7 +383,10 @@
     <div class="info">
 
       <div>
-        <div id="stop" class="stop">竪川大橋北詰</div>
+
+        <div id="stop" class="stop">
+          竪川大橋北詰
+        </div>
 
         <div id="direction" class="direction">
           亀戸駅方面
@@ -382,6 +395,7 @@
         <div id="now" class="now">
           読み込み中...
         </div>
+
       </div>
 
     </div>
@@ -412,7 +426,10 @@
 
     <div id="list" class="list"></div>
 
-    <button class="reload" onclick="loadBuses()">
+    <button
+      class="reload"
+      onclick="loadBuses()"
+    >
       ⟳ 更新する
     </button>
 
@@ -456,11 +473,17 @@ function changeDirection(direction) {
 
   document
     .getElementById("btn-kameido")
-    .classList.toggle("active", direction === "kameido");
+    .classList.toggle(
+      "active",
+      direction === "kameido"
+    );
 
   document
     .getElementById("btn-toyocho")
-    .classList.toggle("active", direction === "toyocho");
+    .classList.toggle(
+      "active",
+      direction === "toyocho"
+    );
 
   loadBuses();
 }
@@ -468,7 +491,9 @@ function changeDirection(direction) {
 async function loadRealtime(detailId) {
 
   const container =
-    document.getElementById(`${detailId}-content`);
+    document.getElementById(
+      `${detailId}-content`
+    );
 
   container.innerHTML = `
     <div class="loading">
@@ -479,7 +504,9 @@ async function loadRealtime(detailId) {
   try {
 
     const res =
-      await fetch(`/api/realtime/${currentDirection}`);
+      await fetch(
+        \`/api/realtime/\${currentDirection}\`
+      );
 
     const data = await res.json();
 
@@ -491,42 +518,28 @@ async function loadRealtime(detailId) {
       <div class="detail-row">
         <div class="detail-key">現在地</div>
         <div class="detail-value">
-          ${data.current_place}
+          接近中
         </div>
       </div>
 
       <div class="detail-row">
         <div class="detail-key">停留所数</div>
         <div class="detail-value">
-          ${data.stop_count}
+          \${data.stop_count}
         </div>
       </div>
 
       <div class="detail-row">
         <div class="detail-key">豪炎寺</div>
         <div class="detail-value goenji-text">
-          🔥 ${data.goenji}
+          🔥 \${data.goenji}
         </div>
       </div>
 
       <div class="detail-row">
         <div class="detail-key">車両番号</div>
         <div class="detail-value">
-          ${data.vehicle_id}
-        </div>
-      </div>
-
-      <div class="detail-row">
-        <div class="detail-key">route_id</div>
-        <div class="detail-value">
-          ${data.route_id}
-        </div>
-      </div>
-
-      <div class="detail-row">
-        <div class="detail-key">距離</div>
-        <div class="detail-value">
-          ${data.distance_km ?? "--"} km
+          \${data.vehicle_id}
         </div>
       </div>
     `;
@@ -550,10 +563,13 @@ async function loadRealtime(detailId) {
 
 function toggleDetail(id) {
 
-  const detail = document.getElementById(id);
+  const detail =
+    document.getElementById(id);
 
   const arrow =
-    document.getElementById(`${id}-arrow`);
+    document.getElementById(
+      \`${id}-arrow\`
+    );
 
   detail.classList.toggle("open");
 
@@ -581,7 +597,9 @@ async function loadBuses() {
   try {
 
     const res =
-      await fetch(`/api/buses/${currentDirection}`);
+      await fetch(
+        \`/api/buses/\${currentDirection}\`
+      );
 
     const data = await res.json();
 
@@ -592,7 +610,7 @@ async function loadBuses() {
       data.direction;
 
     document.getElementById("now").textContent =
-      `現在 ${data.now} / ${getDayTypeLabel(data.day_type)}ダイヤ`;
+      \`現在 \${data.now} / \${getDayTypeLabel(data.day_type)}ダイヤ\`;
 
     if (!data.buses || data.buses.length === 0) {
 
@@ -610,7 +628,10 @@ async function loadBuses() {
     const firstBus = data.buses[0];
 
     const firstDiff =
-      calcRemainingMinutes(firstBus, data.now);
+      calcRemainingMinutes(
+        firstBus,
+        data.now
+      );
 
     document.getElementById("nextTime").textContent =
       firstBus;
@@ -619,16 +640,21 @@ async function loadBuses() {
       getRemainingText(firstDiff);
 
     document.getElementById("count").textContent =
-      `このあと ${data.buses.length} 本あります`;
+      \`このあと \${data.buses.length} 本あります\`;
 
     data.buses.forEach((time, index) => {
 
       const diff =
-        calcRemainingMinutes(time, data.now);
+        calcRemainingMinutes(
+          time,
+          data.now
+        );
 
-      const detailId = `detail-${index}`;
+      const detailId =
+        \`detail-\${index}\`;
 
-      const card = document.createElement("div");
+      const card =
+        document.createElement("div");
 
       card.className = "bus-card";
 
@@ -661,7 +687,10 @@ async function loadBuses() {
 
         </div>
 
-        <div id="${detailId}" class="detail">
+        <div
+          id="${detailId}"
+          class="detail"
+        >
 
           <div
             id="${detailId}-content"
@@ -700,6 +729,7 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register(
       "/static/service-worker.js"
     );
+
   });
 }
 

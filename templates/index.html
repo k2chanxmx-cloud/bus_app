@@ -16,11 +16,10 @@
   <style>
     :root {
       --text: #fff7ed;
-      --sub: #fbbf24;
-      --fire: #ff4b00;
-      --fire2: #ff9f1c;
       --gold: #ffd166;
-      --dark: rgba(5, 0, 0, 0.82);
+      --orange: #ff8a00;
+      --fire: #ff3b00;
+      --dark: rgba(8, 0, 0, 0.88);
     }
 
     * {
@@ -33,7 +32,7 @@
       min-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
       background:
-        linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.88)),
+        linear-gradient(rgba(0,0,0,0.72), rgba(0,0,0,0.9)),
         url("/static/fire-bg.png");
       background-size: cover;
       background-position: center;
@@ -52,7 +51,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .header-icon {
@@ -60,281 +59,227 @@
       height: 58px;
       border-radius: 18px;
       object-fit: cover;
-      box-shadow:
-        0 0 12px rgba(255, 85, 0, 0.75),
-        0 8px 22px rgba(0, 0, 0, 0.6);
       background: #000;
+      box-shadow: 0 0 18px rgba(255, 72, 0, 0.75);
     }
 
     .small {
       color: var(--gold);
       font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-shadow: 0 0 8px rgba(255, 85, 0, 0.8);
+      font-weight: 900;
+      text-shadow: 0 0 10px var(--fire);
     }
 
     h1 {
       margin: 2px 0 0;
-      font-size: 31px;
-      line-height: 1.15;
-      letter-spacing: -0.04em;
+      font-size: 33px;
       color: #fff7ed;
       text-shadow:
-        0 0 8px #ff4b00,
-        0 0 18px rgba(255, 0, 0, 0.8);
+        0 0 8px var(--orange),
+        0 0 18px var(--fire);
     }
 
     .card {
-      position: relative;
       padding: 18px;
-      border-radius: 28px;
-      overflow: hidden;
-      background: linear-gradient(rgba(10,0,0,0.78), rgba(0,0,0,0.88));
+      border-radius: 30px;
+      background: rgba(0,0,0,0.78);
+      border: 1px solid rgba(255, 121, 0, 0.55);
       box-shadow:
-        0 0 22px rgba(255, 68, 0, 0.35),
-        0 18px 40px rgba(0,0,0,0.55);
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: url("/static/frame-simple.png");
-      background-size: 100% 100%;
-      background-repeat: no-repeat;
-      pointer-events: none;
-      opacity: 0.9;
-      z-index: 0;
-    }
-
-    .card > * {
-      position: relative;
-      z-index: 1;
+        0 0 24px rgba(255, 72, 0, 0.45),
+        inset 0 0 22px rgba(255, 72, 0, 0.08);
     }
 
     .tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
     .tab {
-      border: 1px solid rgba(255, 106, 0, 0.45);
-      border-radius: 18px;
-      padding: 13px 10px;
-      font-size: 15px;
+      border: 1px solid rgba(255, 122, 0, 0.45);
+      border-radius: 22px;
+      padding: 15px 8px;
+      font-size: 16px;
       font-weight: 900;
-      color: #c9c0b6;
-      background: rgba(10, 10, 10, 0.72);
+      color: #d6c7b5;
+      background: rgba(8, 8, 8, 0.82);
       cursor: pointer;
-      box-shadow: inset 0 0 12px rgba(255, 88, 0, 0.08);
+      box-shadow: inset 0 0 14px rgba(255, 90, 0, 0.08);
     }
 
     .tab.active {
       color: #fff7ed;
-      background:
-        linear-gradient(135deg, rgba(140, 22, 0, 0.95), rgba(35, 0, 0, 0.9));
-      border-color: var(--fire2);
+      background: linear-gradient(135deg, rgba(120,20,0,0.95), rgba(20,0,0,0.96));
+      border-color: var(--orange);
       box-shadow:
-        0 0 14px rgba(255, 72, 0, 0.8),
-        inset 0 0 16px rgba(255, 150, 0, 0.22);
-      text-shadow: 0 0 8px #ff4b00;
+        0 0 16px rgba(255, 95, 0, 0.9),
+        inset 0 0 18px rgba(255, 150, 0, 0.18);
+      text-shadow: 0 0 8px var(--fire);
+    }
+
+    .info,
+    .next-box,
+    .bus-card,
+    .detail-content {
+      background: rgba(5, 0, 0, 0.86);
+      border: 1px solid rgba(255, 116, 0, 0.62);
+      box-shadow:
+        0 0 16px rgba(255, 72, 0, 0.38),
+        inset 0 0 16px rgba(255, 72, 0, 0.08);
     }
 
     .info {
-      position: relative;
-      margin-top: 14px;
-      padding: 16px;
-      border-radius: 22px;
-      overflow: hidden;
-      background: linear-gradient(135deg, rgba(10,0,0,0.84), rgba(0,0,0,0.9));
-      border: 1px solid rgba(255, 111, 0, 0.5);
-      box-shadow: 0 0 14px rgba(255, 72, 0, 0.35);
-    }
-
-    .info::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: url("/static/frame-fire-top-right.png");
-      background-size: 100% 100%;
-      background-repeat: no-repeat;
-      pointer-events: none;
-      opacity: 0.72;
-    }
-
-    .info > * {
-      position: relative;
-      z-index: 1;
+      padding: 17px;
+      border-radius: 24px;
     }
 
     .stop {
+      color: var(--gold);
       font-size: 14px;
-      color: #fbbf24;
       font-weight: 900;
     }
 
     .direction {
       margin-top: 5px;
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 900;
-      letter-spacing: -0.03em;
-      color: #ffd166;
-      text-shadow:
-        0 0 8px #ff4b00,
-        0 0 16px rgba(255, 50, 0, 0.7);
+      color: var(--gold);
+      text-shadow: 0 0 12px var(--fire);
     }
 
     .now {
-      margin-top: 7px;
-      color: #fef3c7;
+      margin-top: 8px;
       font-size: 13px;
       font-weight: 800;
+      color: #fff1d6;
     }
 
     .fire-divider {
       width: 100%;
       height: 34px;
       object-fit: contain;
-      margin: 10px 0 4px;
-      opacity: 0.88;
+      margin: 12px 0 4px;
+      opacity: 0.85;
+      display: block;
     }
 
     .next-box {
-      position: relative;
       margin-top: 16px;
       padding: 20px;
-      border-radius: 24px;
+      border-radius: 26px;
+      position: relative;
       overflow: hidden;
-      background: linear-gradient(135deg, rgba(12,0,0,0.9), rgba(0,0,0,0.92));
-      border: 1px solid rgba(255, 111, 0, 0.48);
-      box-shadow: 0 0 18px rgba(255, 72, 0, 0.48);
     }
 
-    .next-box::before {
+    .next-box::after {
       content: "";
       position: absolute;
-      inset: 0;
-      background: url("/static/frame-fire-right.png");
-      background-size: 100% 100%;
-      background-repeat: no-repeat;
+      right: -30px;
+      bottom: -40px;
+      width: 170px;
+      height: 170px;
+      background: radial-gradient(circle, rgba(255,95,0,0.35), transparent 65%);
       pointer-events: none;
-      opacity: 0.82;
-    }
-
-    .next-box > * {
-      position: relative;
-      z-index: 1;
     }
 
     .next-label {
-      font-size: 13px;
-      color: #fbbf24;
+      color: var(--gold);
+      font-size: 14px;
       font-weight: 900;
-      text-shadow: 0 0 8px rgba(255, 72, 0, 0.8);
+      text-shadow: 0 0 8px var(--fire);
     }
 
     .next-main {
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
-      flex-wrap: wrap;
+      display: block;
     }
 
     .next-time {
-      margin-top: 2px;
-      font-size: 52px;
+      margin-top: 4px;
+      font-size: 64px;
+      line-height: 1;
       font-weight: 900;
       letter-spacing: -0.06em;
       color: #fff7ed;
       text-shadow:
-        0 0 8px #ff9f1c,
-        0 0 18px #ff4b00,
-        0 0 28px rgba(255, 0, 0, 0.9);
+        0 0 10px var(--orange),
+        0 0 24px var(--fire);
     }
 
     .remaining {
-      margin-top: 4px;
-      font-size: 22px;
+      margin-top: 14px;
+      font-size: 26px;
       font-weight: 900;
-      color: #ffb703;
+      color: var(--gold);
       text-shadow:
-        0 0 8px #ff4b00,
-        0 0 18px rgba(255, 0, 0, 0.8);
+        0 0 8px var(--orange),
+        0 0 18px var(--fire);
     }
 
     .count {
-      margin-top: 4px;
+      margin-top: 8px;
       font-size: 13px;
-      color: #fef3c7;
       font-weight: 800;
+      color: #fff1d6;
     }
 
     .list {
-      margin-top: 16px;
+      margin-top: 18px;
       display: grid;
       gap: 12px;
     }
 
     .bus-card {
-      background: rgba(5, 0, 0, 0.82);
-      border-radius: 22px;
-      border: 1px solid rgba(255, 106, 0, 0.45);
+      border-radius: 24px;
       overflow: hidden;
-      box-shadow:
-        inset 0 0 12px rgba(255, 77, 0, 0.08),
-        0 0 12px rgba(255, 77, 0, 0.22);
     }
 
     .bus-card:first-child {
-      border-color: #ff9f1c;
+      border-color: var(--orange);
       box-shadow:
-        0 0 16px rgba(255, 72, 0, 0.7),
-        inset 0 0 18px rgba(255, 77, 0, 0.15);
+        0 0 18px rgba(255, 72, 0, 0.85),
+        inset 0 0 18px rgba(255, 72, 0, 0.13);
     }
 
     .bus-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px;
+      padding: 17px;
       cursor: pointer;
     }
 
     .bus-time {
-      font-size: 30px;
+      font-size: 34px;
       font-weight: 900;
-      letter-spacing: -0.04em;
       color: #fff7ed;
-      text-shadow: 0 0 8px rgba(255, 72, 0, 0.65);
+      text-shadow: 0 0 10px var(--fire);
     }
 
     .bus-note {
-      font-size: 14px;
-      font-weight: 900;
-      color: #ffb703;
       display: flex;
       align-items: center;
       gap: 8px;
+      color: var(--gold);
+      font-size: 15px;
+      font-weight: 900;
       white-space: nowrap;
-      text-shadow: 0 0 8px rgba(255, 72, 0, 0.7);
+      text-shadow: 0 0 8px var(--fire);
     }
 
     .badge {
-      border-radius: 9px;
-      padding: 5px 10px;
-      font-size: 13px;
-      font-weight: 900;
-      color: #fff7ed;
+      padding: 6px 12px;
+      border-radius: 12px;
       background: linear-gradient(135deg, #ef4444, #7f1d1d);
-      box-shadow: 0 0 10px rgba(255, 72, 0, 0.9);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: 0 0 12px var(--fire);
     }
 
     .chevron {
-      color: #ffb703;
-      font-size: 18px;
+      color: var(--gold);
+      font-size: 20px;
       font-weight: 900;
     }
 
@@ -342,105 +287,77 @@
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease;
-      background: rgba(0, 0, 0, 0.42);
     }
 
     .detail.open {
-      max-height: 280px;
+      max-height: 260px;
     }
 
     .detail-content {
-      position: relative;
       margin: 0 14px 14px;
       padding: 18px;
-      border-radius: 18px;
-      overflow: hidden;
-      background: linear-gradient(135deg, rgba(20,0,0,0.86), rgba(0,0,0,0.9));
-      border: 1px solid rgba(255, 106, 0, 0.45);
-    }
-
-    .detail-content::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: url("/static/frame-fire-left.png");
-      background-size: 100% 100%;
-      background-repeat: no-repeat;
-      pointer-events: none;
-      opacity: 0.76;
-    }
-
-    .detail-content > * {
-      position: relative;
-      z-index: 1;
+      border-radius: 20px;
     }
 
     .detail-title {
       text-align: center;
-      font-size: 17px;
-      color: #ffd166;
+      color: var(--gold);
+      font-size: 18px;
       font-weight: 900;
       margin-bottom: 14px;
-      text-shadow: 0 0 9px #ff4b00;
+      text-shadow: 0 0 10px var(--fire);
     }
 
     .detail-row {
       display: grid;
-      grid-template-columns: 90px 1fr;
+      grid-template-columns: 86px 1fr;
       gap: 10px;
       align-items: center;
-      margin-bottom: 10px;
-      font-size: 14px;
+      margin-bottom: 11px;
+      font-size: 15px;
     }
 
     .detail-key {
-      color: #fbbf24;
+      color: var(--gold);
       font-weight: 900;
       white-space: nowrap;
     }
 
     .detail-value {
+      color: #fff7ed;
       font-weight: 900;
       text-align: right;
-      color: #fff7ed;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .goenji-text {
-      color: #ff4b00;
-      font-weight: 900;
-      white-space: nowrap;
-      text-shadow:
-        0 0 6px #ff7a00,
-        0 0 14px #ff2200;
+      color: #ff5a1f;
+      text-shadow: 0 0 10px var(--fire);
     }
 
     .reload {
       width: 100%;
-      margin-top: 14px;
-      border: 0;
-      border-radius: 20px;
+      margin-top: 16px;
+      border: 1px solid rgba(255, 156, 0, 0.82);
+      border-radius: 22px;
       padding: 16px;
+      color: var(--gold);
+      background: linear-gradient(135deg, rgba(130,20,0,0.96), rgba(10,0,0,0.96));
       font-size: 17px;
       font-weight: 900;
-      color: #ffd166;
-      background:
-        linear-gradient(135deg, rgba(120, 18, 0, 0.96), rgba(20, 0, 0, 0.96));
-      border: 1px solid rgba(255, 150, 0, 0.8);
       box-shadow:
-        0 0 14px rgba(255, 72, 0, 0.75),
-        inset 0 0 16px rgba(255, 150, 0, 0.18);
-      cursor: pointer;
-      text-shadow: 0 0 8px #ff4b00;
+        0 0 18px rgba(255, 72, 0, 0.75),
+        inset 0 0 16px rgba(255, 150, 0, 0.16);
+      text-shadow: 0 0 8px var(--fire);
     }
 
     .loading {
-      opacity: 0.78;
-      font-weight: 800;
       text-align: center;
-      color: #fef3c7;
+      color: #fff1d6;
+      font-weight: 800;
+      opacity: 0.8;
     }
   </style>
 </head>
@@ -460,11 +377,11 @@
 
     <div class="tabs">
       <button id="btn-kameido" class="tab active" onclick="changeDirection('kameido')">
-        🔥 亀戸駅方面
+        亀戸駅方面
       </button>
 
       <button id="btn-toyocho" class="tab" onclick="changeDirection('toyocho')">
-        🚌 東陽町方面
+        東陽町方面
       </button>
     </div>
 
@@ -513,26 +430,16 @@ function calcRemainingMinutes(busTime, nowTime) {
   return (bh * 60 + bm) - (nh * 60 + nm);
 }
 
-function getRemainingText(diff) {
-  if (diff <= 0) return "まもなく発車";
-  return `あと ${diff} 分`;
-}
-
 function getGoenjiRemainText(diff) {
   if (diff <= 0) return "まもなく豪炎寺";
-  return `あと ${diff} 分豪炎寺 🔥`;
+  return `あと ${diff} 分豪炎寺`;
 }
 
 function changeDirection(direction) {
   currentDirection = direction;
 
-  document
-    .getElementById("btn-kameido")
-    .classList.toggle("active", direction === "kameido");
-
-  document
-    .getElementById("btn-toyocho")
-    .classList.toggle("active", direction === "toyocho");
+  document.getElementById("btn-kameido").classList.toggle("active", direction === "kameido");
+  document.getElementById("btn-toyocho").classList.toggle("active", direction === "toyocho");
 
   loadBuses();
 }
@@ -540,61 +447,41 @@ function changeDirection(direction) {
 async function loadRealtime(detailId) {
   const container = document.getElementById(`${detailId}-content`);
 
-  container.innerHTML = `
-    <div class="loading">
-      接近情報取得中...
-    </div>
-  `;
+  container.innerHTML = `<div class="loading">接近情報取得中...</div>`;
 
   try {
     const res = await fetch(`/api/realtime/${currentDirection}`);
     const data = await res.json();
 
     container.innerHTML = `
-      <div class="detail-title">
-        🔥 接近情報
-      </div>
+      <div class="detail-title">🔥 接近情報</div>
 
       <div class="detail-row">
         <div class="detail-key">現在地</div>
-        <div class="detail-value">
-          ${data.current_place}
-        </div>
+        <div class="detail-value">${data.current_place}</div>
       </div>
 
       <div class="detail-row">
         <div class="detail-key">停留所数</div>
-        <div class="detail-value">
-          ${data.stop_count}
-        </div>
+        <div class="detail-value">${data.stop_count}</div>
       </div>
 
       <div class="detail-row">
         <div class="detail-key">豪炎寺</div>
-        <div class="detail-value goenji-text">
-          🔥 ${data.goenji}
-        </div>
+        <div class="detail-value goenji-text">🔥 ${data.goenji}</div>
       </div>
 
       <div class="detail-row">
         <div class="detail-key">車両番号</div>
-        <div class="detail-value">
-          ${data.vehicle_id}
-        </div>
+        <div class="detail-value">${data.vehicle_id}</div>
       </div>
     `;
-
   } catch (e) {
     container.innerHTML = `
-      <div class="detail-title">
-        接近情報
-      </div>
-
+      <div class="detail-title">接近情報</div>
       <div class="detail-row">
         <div class="detail-key">状態</div>
-        <div class="detail-value">
-          通信エラー
-        </div>
+        <div class="detail-value">通信エラー</div>
       </div>
     `;
   }
@@ -617,7 +504,6 @@ function toggleDetail(id) {
 
 async function loadBuses() {
   const list = document.getElementById("list");
-
   list.innerHTML = "";
 
   try {
@@ -626,7 +512,6 @@ async function loadBuses() {
 
     document.getElementById("stop").textContent = data.stop;
     document.getElementById("direction").textContent = data.direction;
-
     document.getElementById("now").textContent =
       `現在 ${data.now} / ${getDayTypeLabel(data.day_type)}ダイヤ`;
 
@@ -634,14 +519,6 @@ async function loadBuses() {
       document.getElementById("nextTime").textContent = "終了";
       document.getElementById("remaining").textContent = "--";
       document.getElementById("count").textContent = "本日の残りの便はありません";
-
-      list.innerHTML = `
-        <div class="bus-card">
-          <div class="bus-header">
-            本日のバスは終了しました
-          </div>
-        </div>
-      `;
       return;
     }
 
@@ -662,28 +539,17 @@ async function loadBuses() {
 
       card.innerHTML = `
         <div class="bus-header" onclick="toggleDetail('${detailId}')">
-          <div class="bus-time">
-            ${time}
-          </div>
+          <div class="bus-time">${time}</div>
 
           <div class="bus-note">
-            ${
-              index === 0
-              ? '<span class="badge">次発</span>'
-              : getGoenjiRemainText(diff)
-            }
-
-            <span id="${detailId}-arrow" class="chevron">
-              ⌄
-            </span>
+            ${index === 0 ? '<span class="badge">次発</span>' : getGoenjiRemainText(diff)}
+            <span id="${detailId}-arrow" class="chevron">⌄</span>
           </div>
         </div>
 
         <div id="${detailId}" class="detail">
           <div id="${detailId}-content" class="detail-content">
-            <div class="loading">
-              タップで接近情報取得
-            </div>
+            <div class="loading">タップで接近情報取得</div>
           </div>
         </div>
       `;
@@ -695,14 +561,6 @@ async function loadBuses() {
     document.getElementById("nextTime").textContent = "エラー";
     document.getElementById("remaining").textContent = "--";
     document.getElementById("count").textContent = "時刻表を取得できませんでした";
-
-    list.innerHTML = `
-      <div class="bus-card">
-        <div class="bus-header">
-          通信エラーです
-        </div>
-      </div>
-    `;
   }
 }
 

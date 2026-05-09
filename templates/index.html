@@ -2,15 +2,11 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
   <title>豪炎寺バス</title>
 
   <link rel="manifest" href="/static/manifest.json" />
-
   <meta name="theme-color" content="#f4f6fb" />
 
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -20,7 +16,6 @@
   <link rel="apple-touch-icon" href="/static/icon-512.png" />
 
   <style>
-
     :root {
       --bg: #f4f6fb;
       --card: rgba(255,255,255,0.88);
@@ -41,20 +36,11 @@
     body {
       margin: 0;
       min-height: 100vh;
-
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Hiragino Sans",
-        "Yu Gothic",
-        "Meiryo",
-        sans-serif;
-
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
       background:
         radial-gradient(circle at top left, #e0f2fe 0, transparent 34%),
         radial-gradient(circle at bottom right, #ede9fe 0, transparent 32%),
         var(--bg);
-
       color: var(--text);
     }
 
@@ -62,11 +48,7 @@
       max-width: 430px;
       margin: 0 auto;
       min-height: 100vh;
-
-      padding:
-        calc(env(safe-area-inset-top) + 18px)
-        18px
-        calc(env(safe-area-inset-bottom) + 24px);
+      padding: calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 24px);
     }
 
     .app-header {
@@ -138,9 +120,6 @@
       padding: 14px;
       border-radius: 22px;
       background: var(--main-soft);
-      display: flex;
-      align-items: center;
-      gap: 12px;
     }
 
     .stop {
@@ -335,101 +314,52 @@
       font-weight: 700;
       text-align: center;
     }
-
   </style>
 </head>
 
 <body>
-
 <main class="app">
 
   <div class="app-header">
-
-    <img
-      class="header-icon"
-      src="/static/icon-512.png"
-      alt="豪炎寺"
-    >
-
+    <img class="header-icon" src="/static/icon-512.png" alt="豪炎寺">
     <div>
       <div class="small">竪川大橋北詰</div>
       <h1>次のバス</h1>
     </div>
-
   </div>
 
   <section class="card">
 
     <div class="tabs">
-
-      <button
-        id="btn-kameido"
-        class="tab active"
-        onclick="changeDirection('kameido')"
-      >
+      <button id="btn-kameido" class="tab active" onclick="changeDirection('kameido')">
         亀戸駅方面
       </button>
 
-      <button
-        id="btn-toyocho"
-        class="tab"
-        onclick="changeDirection('toyocho')"
-      >
+      <button id="btn-toyocho" class="tab" onclick="changeDirection('toyocho')">
         東陽町方面
       </button>
-
     </div>
 
     <div class="info">
-
-      <div>
-
-        <div id="stop" class="stop">
-          竪川大橋北詰
-        </div>
-
-        <div id="direction" class="direction">
-          亀戸駅方面
-        </div>
-
-        <div id="now" class="now">
-          読み込み中...
-        </div>
-
-      </div>
-
+      <div id="stop" class="stop">竪川大橋北詰</div>
+      <div id="direction" class="direction">亀戸駅方面</div>
+      <div id="now" class="now">読み込み中...</div>
     </div>
 
     <div class="next-box">
-
-      <div class="next-label">
-        いちばん近いバス
-      </div>
+      <div class="next-label">いちばん近いバス</div>
 
       <div class="next-main">
-
-        <div id="nextTime" class="next-time">
-          --:--
-        </div>
-
-        <div id="remaining" class="remaining">
-          --
-        </div>
-
+        <div id="nextTime" class="next-time">--:--</div>
+        <div id="remaining" class="remaining">--</div>
       </div>
 
-      <div id="count" class="count">
-        --
-      </div>
-
+      <div id="count" class="count">--</div>
     </div>
 
     <div id="list" class="list"></div>
 
-    <button
-      class="reload"
-      onclick="loadBuses()"
-    >
+    <button class="reload" onclick="loadBuses()">
       ⟳ 更新する
     </button>
 
@@ -438,62 +368,44 @@
 </main>
 
 <script>
-
 let currentDirection = "kameido";
 
 function getDayTypeLabel(dayType) {
-
   if (dayType === "weekday") return "平日";
   if (dayType === "saturday") return "土曜";
   if (dayType === "holiday") return "日曜/祝日";
-
   return "";
 }
 
 function calcRemainingMinutes(busTime, nowTime) {
-
   const [bh, bm] = busTime.split(":").map(Number);
   const [nh, nm] = nowTime.split(":").map(Number);
-
   return (bh * 60 + bm) - (nh * 60 + nm);
 }
 
 function getRemainingText(diff) {
-
   if (diff <= 0) {
     return "まもなく発車";
   }
-
   return `あと ${diff} 分`;
 }
 
 function changeDirection(direction) {
-
   currentDirection = direction;
 
   document
     .getElementById("btn-kameido")
-    .classList.toggle(
-      "active",
-      direction === "kameido"
-    );
+    .classList.toggle("active", direction === "kameido");
 
   document
     .getElementById("btn-toyocho")
-    .classList.toggle(
-      "active",
-      direction === "toyocho"
-    );
+    .classList.toggle("active", direction === "toyocho");
 
   loadBuses();
 }
 
 async function loadRealtime(detailId) {
-
-  const container =
-    document.getElementById(
-      `${detailId}-content`
-    );
+  const container = document.getElementById(`${detailId}-content`);
 
   container.innerHTML = `
     <div class="loading">
@@ -502,12 +414,7 @@ async function loadRealtime(detailId) {
   `;
 
   try {
-
-    const res =
-      await fetch(
-        \`/api/realtime/\${currentDirection}\`
-      );
-
+    const res = await fetch(`/api/realtime/${currentDirection}`);
     const data = await res.json();
 
     container.innerHTML = `
@@ -525,27 +432,26 @@ async function loadRealtime(detailId) {
       <div class="detail-row">
         <div class="detail-key">停留所数</div>
         <div class="detail-value">
-          \${data.stop_count}
+          ${data.stop_count}
         </div>
       </div>
 
       <div class="detail-row">
         <div class="detail-key">豪炎寺</div>
         <div class="detail-value goenji-text">
-          🔥 \${data.goenji}
+          🔥 ${data.goenji}
         </div>
       </div>
 
       <div class="detail-row">
         <div class="detail-key">車両番号</div>
         <div class="detail-value">
-          \${data.vehicle_id}
+          ${data.vehicle_id}
         </div>
       </div>
     `;
 
   } catch (e) {
-
     container.innerHTML = `
       <div class="detail-title">
         接近情報
@@ -562,57 +468,39 @@ async function loadRealtime(detailId) {
 }
 
 function toggleDetail(id) {
-
-  const detail =
-    document.getElementById(id);
-
-  const arrow =
-    document.getElementById(
-      \`${id}-arrow\`
-    );
+  const detail = document.getElementById(id);
+  const arrow = document.getElementById(`${id}-arrow`);
 
   detail.classList.toggle("open");
 
   if (arrow) {
-
-    arrow.textContent =
-      detail.classList.contains("open")
-      ? "⌃"
-      : "⌄";
+    arrow.textContent = detail.classList.contains("open") ? "⌃" : "⌄";
   }
 
   if (detail.classList.contains("open")) {
-
     loadRealtime(id);
   }
 }
 
 async function loadBuses() {
-
-  const list =
-    document.getElementById("list");
+  const list = document.getElementById("list");
 
   list.innerHTML = "";
 
   try {
-
-    const res =
-      await fetch(
-        \`/api/buses/\${currentDirection}\`
-      );
-
+    const res = await fetch(`/api/buses/${currentDirection}`);
     const data = await res.json();
 
-    document.getElementById("stop").textContent =
-      data.stop;
-
-    document.getElementById("direction").textContent =
-      data.direction;
+    document.getElementById("stop").textContent = data.stop;
+    document.getElementById("direction").textContent = data.direction;
 
     document.getElementById("now").textContent =
-      \`現在 \${data.now} / \${getDayTypeLabel(data.day_type)}ダイヤ\`;
+      `現在 ${data.now} / ${getDayTypeLabel(data.day_type)}ダイヤ`;
 
     if (!data.buses || data.buses.length === 0) {
+      document.getElementById("nextTime").textContent = "終了";
+      document.getElementById("remaining").textContent = "--";
+      document.getElementById("count").textContent = "本日の残りの便はありません";
 
       list.innerHTML = `
         <div class="bus-card">
@@ -621,96 +509,59 @@ async function loadBuses() {
           </div>
         </div>
       `;
-
       return;
     }
 
     const firstBus = data.buses[0];
+    const firstDiff = calcRemainingMinutes(firstBus, data.now);
 
-    const firstDiff =
-      calcRemainingMinutes(
-        firstBus,
-        data.now
-      );
-
-    document.getElementById("nextTime").textContent =
-      firstBus;
-
-    document.getElementById("remaining").textContent =
-      getRemainingText(firstDiff);
-
+    document.getElementById("nextTime").textContent = firstBus;
+    document.getElementById("remaining").textContent = getRemainingText(firstDiff);
     document.getElementById("count").textContent =
-      \`このあと \${data.buses.length} 本あります\`;
+      `このあと ${data.buses.length} 本あります`;
 
     data.buses.forEach((time, index) => {
-
-      const diff =
-        calcRemainingMinutes(
-          time,
-          data.now
-        );
-
-      const detailId =
-        \`detail-\${index}\`;
-
-      const card =
-        document.createElement("div");
+      const diff = calcRemainingMinutes(time, data.now);
+      const detailId = `detail-${index}`;
+      const card = document.createElement("div");
 
       card.className = "bus-card";
 
       card.innerHTML = `
-        <div
-          class="bus-header"
-          onclick="toggleDetail('${detailId}')"
-        >
-
+        <div class="bus-header" onclick="toggleDetail('${detailId}')">
           <div class="bus-time">
             ${time}
           </div>
 
           <div class="bus-note">
-
             ${
               index === 0
               ? '<span class="badge">次発</span>'
               : getRemainingText(diff)
             }
 
-            <span
-              id="${detailId}-arrow"
-              class="chevron"
-            >
+            <span id="${detailId}-arrow" class="chevron">
               ⌄
             </span>
-
           </div>
-
         </div>
 
-        <div
-          id="${detailId}"
-          class="detail"
-        >
-
-          <div
-            id="${detailId}-content"
-            class="detail-content"
-          >
-
+        <div id="${detailId}" class="detail">
+          <div id="${detailId}-content" class="detail-content">
             <div class="loading">
               タップで接近情報取得
             </div>
-
           </div>
-
         </div>
       `;
 
       list.appendChild(card);
-
     });
 
   } catch (e) {
+    document.getElementById("nextTime").textContent = "エラー";
+    document.getElementById("remaining").textContent = "--";
+    document.getElementById("count").textContent = "時刻表を取得できませんでした";
 
     list.innerHTML = `
       <div class="bus-card">
@@ -723,20 +574,13 @@ async function loadBuses() {
 }
 
 if ("serviceWorker" in navigator) {
-
   window.addEventListener("load", () => {
-
-    navigator.serviceWorker.register(
-      "/static/service-worker.js"
-    );
-
+    navigator.serviceWorker.register("/static/service-worker.js");
   });
 }
 
 loadBuses();
-
 setInterval(loadBuses, 60000);
-
 </script>
 
 </body>

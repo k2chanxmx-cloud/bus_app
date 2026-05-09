@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify
 from datetime import datetime, timedelta, timezone
 import os
 import math
+import csv
 import requests
 import jpholiday
 from google.transit import gtfs_realtime_pb2
@@ -9,16 +10,18 @@ from google.transit import gtfs_realtime_pb2
 app = Flask(__name__)
 
 JST = timezone(timedelta(hours=9))
-ODPT_API_KEY = os.environ.get("ODPT_API_KEY")
 
+ODPT_API_KEY = os.environ.get("ODPT_API_KEY")
 ODPT_REALTIME_URL = "https://api.odpt.org/api/v4/gtfs/realtime/ToeiBus"
 
 TARGET_ROUTE_ID = "058"
 
-# 竪川大橋北詰あたり
 TARGET_LAT = 35.6960
 TARGET_LON = 139.8225
 SEARCH_RADIUS_KM = 5.0
+
+STOPS_FILE = os.path.join("gtfs", "stops.txt")
+
 
 BUS_TIMES = {
     "kameido": {
@@ -141,6 +144,47 @@ BUS_TIMES = {
 }
 
 
+def load_stop_names():
+    stop_names = {}
+
+    if not os.path.exists(STOPS_FILE):
+        return stop_names
+
+    try:
+        with open(STOPS_FILE, encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                stop_id = row.get("stop_id", "")
+                stop_name = row.get("stop_name", "")
+
+                if stop_id and stop_name:
+                    stop_names[stop_id] = stop_name
+
+        return stop_names
+
+    except Exception:
+        return stop_names
+
+
+STOP_NAMES = load_stop_names()
+
+
+def get_stop_name(stop_id):
+    if not stop_id:
+        return "接近中"
+
+    if stop_id in STOP_NAMES:
+        return STOP_NAMES[stop_id]
+
+    base_stop_id = stop_id.split("-")[0]
+
+    if base_stop_id in STOP_NAMES:
+        return STOP_NAMES[base_stop_id]
+
+    return "接近中"
+
+
 def get_day_type():
     today = datetime.now(JST)
 
@@ -244,6 +288,7 @@ def fetch_toei_realtime():
                 "route_id": route_id,
                 "vehicle_id": vehicle_id,
                 "stop_id": stop_id,
+                "stop_name": get_stop_name(stop_id),
                 "latitude": lat,
                 "longitude": lon,
             }
@@ -275,9 +320,6 @@ def fetch_toei_realtime():
 def is_target_direction(vehicle, direction_key):
     trip_id = vehicle.get("trip_id", "")
 
-    # 亀21 route_id=058 の trip_id は
-    # 60001-1-... と 60001-2-... のように方向らしき値が入る。
-    # いったん以下で仮振り分け。
     if direction_key == "kameido":
         return "-1-" in trip_id
 
@@ -294,7 +336,6 @@ def get_target_vehicles(direction_key):
         return realtime
 
     vehicles = realtime["vehicles"]
-
     target = []
 
     for v in vehicles:
@@ -307,7 +348,9 @@ def get_target_vehicles(direction_key):
         if v.get("distance_km") is not None and v["distance_km"] <= SEARCH_RADIUS_KM:
             target.append(v)
 
-    target.sort(key=lambda x: x["distance_km"] if x.get("distance_km") is not None else 9999)
+    target.sort(
+        key=lambda x: x["distance_km"] if x.get("distance_km") is not None else 9999
+    )
 
     return {
         "ok": True,
@@ -315,22 +358,6 @@ def get_target_vehicles(direction_key):
         "vehicles": target,
         "all_count": len(vehicles),
     }
-
-
-def guess_place(distance):
-    if distance is None:
-        return "位置情報あり"
-
-    if distance <= 0.25:
-        return "竪川大橋北詰付近"
-    elif distance <= 0.7:
-        return "かなり近く"
-    elif distance <= 1.5:
-        return "周辺を走行中"
-    elif distance <= 3.0:
-        return "少し離れた場所"
-    else:
-        return "遠め"
 
 
 def get_stop_count_text(distance):
@@ -372,6 +399,7 @@ def get_realtime_info(direction_key):
             "status": "error",
             "message": result["reason"],
             "current_place": "取得できません",
+            "stop_name": "取得できません",
             "stop_count": "--",
             "goenji": "--",
             "vehicle_id": "--",
@@ -391,6 +419,7 @@ def get_realtime_info(direction_key):
             "status": "no_vehicle",
             "message": "亀21の該当方面の車両が近くに見つかりませんでした",
             "current_place": "近くの車両なし",
+            "stop_name": "近くの車両なし",
             "stop_count": "--",
             "goenji": "確認中",
             "vehicle_id": "--",
@@ -404,13 +433,15 @@ def get_realtime_info(direction_key):
 
     target = vehicles[0]
     distance = target.get("distance_km")
+    stop_name = target.get("stop_name") or "接近中"
 
     return {
         "ok": True,
         "status": "success",
         "message": "亀21のリアルタイム情報を取得しました",
         "direction": BUS_TIMES[direction_key]["label"],
-        "current_place": guess_place(distance),
+        "current_place": stop_name,
+        "stop_name": stop_name,
         "stop_count": get_stop_count_text(distance),
         "goenji": get_goenji_text(distance),
         "vehicle_id": target.get("vehicle_id") or target.get("entity_id") or "--",
@@ -422,6 +453,7 @@ def get_realtime_info(direction_key):
         "distance_km": distance,
         "target_count": len(vehicles),
         "all_count": result.get("all_count", 0),
+        "stops_loaded": len(STOP_NAMES),
     }
 
 
@@ -464,6 +496,8 @@ def realtime_debug():
     return jsonify({
         "ok": realtime["ok"],
         "reason": realtime["reason"],
+        "stops_file_exists": os.path.exists(STOPS_FILE),
+        "stops_loaded": len(STOP_NAMES),
         "target": {
             "name": "竪川大橋北詰",
             "latitude": TARGET_LAT,
@@ -489,6 +523,8 @@ def realtime_debug_direction(direction):
         "reason": result["reason"],
         "direction": direction,
         "direction_label": BUS_TIMES[direction]["label"],
+        "stops_file_exists": os.path.exists(STOPS_FILE),
+        "stops_loaded": len(STOP_NAMES),
         "count": len(result.get("vehicles", [])),
         "vehicles": result.get("vehicles", []),
     })

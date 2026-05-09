@@ -7,25 +7,20 @@
   <title>豪炎寺バス</title>
 
   <link rel="manifest" href="/static/manifest.json" />
-  <meta name="theme-color" content="#f4f6fb" />
-
+  <meta name="theme-color" content="#050000" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="豪炎寺バス" />
-
   <link rel="apple-touch-icon" href="/static/icon-512.png" />
 
   <style>
     :root {
-      --bg: #f4f6fb;
-      --card: rgba(255,255,255,0.88);
-      --text: #1f2937;
-      --sub: #6b7280;
-      --main: #2563eb;
-      --main-soft: #dbeafe;
-      --border: rgba(0,0,0,0.08);
-      --shadow: 0 18px 40px rgba(15,23,42,0.12);
-      --fire: #ef4444;
+      --text: #fff7ed;
+      --sub: #fbbf24;
+      --fire: #ff4b00;
+      --fire2: #ff9f1c;
+      --gold: #ffd166;
+      --dark: rgba(5, 0, 0, 0.82);
     }
 
     * {
@@ -38,9 +33,11 @@
       min-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
       background:
-        radial-gradient(circle at top left, #e0f2fe 0, transparent 34%),
-        radial-gradient(circle at bottom right, #ede9fe 0, transparent 32%),
-        var(--bg);
+        linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.88)),
+        url("/static/fire-bg.png");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
       color: var(--text);
     }
 
@@ -55,7 +52,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     .header-icon {
@@ -63,15 +60,18 @@
       height: 58px;
       border-radius: 18px;
       object-fit: cover;
-      box-shadow: 0 8px 20px rgba(15,23,42,0.18);
-      background: #fff;
+      box-shadow:
+        0 0 12px rgba(255, 85, 0, 0.75),
+        0 8px 22px rgba(0, 0, 0, 0.6);
+      background: #000;
     }
 
     .small {
-      color: var(--sub);
+      color: var(--gold);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: 0.04em;
+      text-shadow: 0 0 8px rgba(255, 85, 0, 0.8);
     }
 
     h1 {
@@ -79,16 +79,38 @@
       font-size: 31px;
       line-height: 1.15;
       letter-spacing: -0.04em;
+      color: #fff7ed;
+      text-shadow:
+        0 0 8px #ff4b00,
+        0 0 18px rgba(255, 0, 0, 0.8);
     }
 
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      position: relative;
       padding: 18px;
+      border-radius: 28px;
+      overflow: hidden;
+      background: linear-gradient(rgba(10,0,0,0.78), rgba(0,0,0,0.88));
+      box-shadow:
+        0 0 22px rgba(255, 68, 0, 0.35),
+        0 18px 40px rgba(0,0,0,0.55);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url("/static/frame-simple.png");
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      opacity: 0.9;
+      z-index: 0;
+    }
+
+    .card > * {
+      position: relative;
+      z-index: 1;
     }
 
     .tabs {
@@ -99,89 +121,155 @@
     }
 
     .tab {
-      border: 0;
+      border: 1px solid rgba(255, 106, 0, 0.45);
       border-radius: 18px;
       padding: 13px 10px;
       font-size: 15px;
-      font-weight: 800;
-      color: var(--sub);
-      background: #eef2f7;
+      font-weight: 900;
+      color: #c9c0b6;
+      background: rgba(10, 10, 10, 0.72);
       cursor: pointer;
+      box-shadow: inset 0 0 12px rgba(255, 88, 0, 0.08);
     }
 
     .tab.active {
-      color: #fff;
-      background: var(--main);
-      box-shadow: 0 10px 20px rgba(37,99,235,0.25);
+      color: #fff7ed;
+      background:
+        linear-gradient(135deg, rgba(140, 22, 0, 0.95), rgba(35, 0, 0, 0.9));
+      border-color: var(--fire2);
+      box-shadow:
+        0 0 14px rgba(255, 72, 0, 0.8),
+        inset 0 0 16px rgba(255, 150, 0, 0.22);
+      text-shadow: 0 0 8px #ff4b00;
     }
 
     .info {
+      position: relative;
       margin-top: 14px;
-      padding: 14px;
+      padding: 16px;
       border-radius: 22px;
-      background: var(--main-soft);
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(10,0,0,0.84), rgba(0,0,0,0.9));
+      border: 1px solid rgba(255, 111, 0, 0.5);
+      box-shadow: 0 0 14px rgba(255, 72, 0, 0.35);
+    }
+
+    .info::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url("/static/frame-fire-top-right.png");
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      opacity: 0.72;
+    }
+
+    .info > * {
+      position: relative;
+      z-index: 1;
     }
 
     .stop {
       font-size: 14px;
-      color: var(--sub);
-      font-weight: 800;
+      color: #fbbf24;
+      font-weight: 900;
     }
 
     .direction {
-      margin-top: 4px;
-      font-size: 24px;
+      margin-top: 5px;
+      font-size: 26px;
       font-weight: 900;
       letter-spacing: -0.03em;
+      color: #ffd166;
+      text-shadow:
+        0 0 8px #ff4b00,
+        0 0 16px rgba(255, 50, 0, 0.7);
     }
 
     .now {
-      margin-top: 6px;
-      color: var(--sub);
+      margin-top: 7px;
+      color: #fef3c7;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
+    }
+
+    .fire-divider {
+      width: 100%;
+      height: 34px;
+      object-fit: contain;
+      margin: 10px 0 4px;
+      opacity: 0.88;
     }
 
     .next-box {
+      position: relative;
       margin-top: 16px;
-      padding: 18px;
+      padding: 20px;
       border-radius: 24px;
-      background: #111827;
-      color: #fff;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(12,0,0,0.9), rgba(0,0,0,0.92));
+      border: 1px solid rgba(255, 111, 0, 0.48);
+      box-shadow: 0 0 18px rgba(255, 72, 0, 0.48);
+    }
+
+    .next-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url("/static/frame-fire-right.png");
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      opacity: 0.82;
+    }
+
+    .next-box > * {
+      position: relative;
+      z-index: 1;
     }
 
     .next-label {
       font-size: 13px;
-      opacity: 0.72;
-      font-weight: 800;
+      color: #fbbf24;
+      font-weight: 900;
+      text-shadow: 0 0 8px rgba(255, 72, 0, 0.8);
     }
 
     .next-main {
       display: flex;
       align-items: baseline;
-      gap: 18px;
+      gap: 16px;
       flex-wrap: wrap;
     }
 
     .next-time {
       margin-top: 2px;
-      font-size: 48px;
+      font-size: 52px;
       font-weight: 900;
       letter-spacing: -0.06em;
+      color: #fff7ed;
+      text-shadow:
+        0 0 8px #ff9f1c,
+        0 0 18px #ff4b00,
+        0 0 28px rgba(255, 0, 0, 0.9);
     }
 
     .remaining {
       margin-top: 4px;
       font-size: 22px;
       font-weight: 900;
-      color: #60a5fa;
+      color: #ffb703;
+      text-shadow:
+        0 0 8px #ff4b00,
+        0 0 18px rgba(255, 0, 0, 0.8);
     }
 
     .count {
       margin-top: 4px;
       font-size: 13px;
-      opacity: 0.72;
-      font-weight: 700;
+      color: #fef3c7;
+      font-weight: 800;
     }
 
     .list {
@@ -191,14 +279,20 @@
     }
 
     .bus-card {
-      background: #fff;
+      background: rgba(5, 0, 0, 0.82);
       border-radius: 22px;
-      border: 1px solid var(--border);
+      border: 1px solid rgba(255, 106, 0, 0.45);
       overflow: hidden;
+      box-shadow:
+        inset 0 0 12px rgba(255, 77, 0, 0.08),
+        0 0 12px rgba(255, 77, 0, 0.22);
     }
 
     .bus-card:first-child {
-      border: 2px solid var(--main);
+      border-color: #ff9f1c;
+      box-shadow:
+        0 0 16px rgba(255, 72, 0, 0.7),
+        inset 0 0 18px rgba(255, 77, 0, 0.15);
     }
 
     .bus-header {
@@ -210,32 +304,36 @@
     }
 
     .bus-time {
-      font-size: 28px;
+      font-size: 30px;
       font-weight: 900;
       letter-spacing: -0.04em;
+      color: #fff7ed;
+      text-shadow: 0 0 8px rgba(255, 72, 0, 0.65);
     }
 
     .bus-note {
       font-size: 14px;
-      font-weight: 800;
-      color: var(--sub);
+      font-weight: 900;
+      color: #ffb703;
       display: flex;
       align-items: center;
       gap: 8px;
       white-space: nowrap;
+      text-shadow: 0 0 8px rgba(255, 72, 0, 0.7);
     }
 
     .badge {
-      border-radius: 8px;
-      padding: 5px 9px;
+      border-radius: 9px;
+      padding: 5px 10px;
       font-size: 13px;
       font-weight: 900;
-      color: #fff;
-      background: var(--main);
+      color: #fff7ed;
+      background: linear-gradient(135deg, #ef4444, #7f1d1d);
+      box-shadow: 0 0 10px rgba(255, 72, 0, 0.9);
     }
 
     .chevron {
-      color: var(--sub);
+      color: #ffb703;
       font-size: 18px;
       font-weight: 900;
     }
@@ -244,26 +342,46 @@
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease;
-      background: #f9fafb;
+      background: rgba(0, 0, 0, 0.42);
     }
 
     .detail.open {
-      max-height: 260px;
+      max-height: 280px;
     }
 
     .detail-content {
+      position: relative;
       margin: 0 14px 14px;
-      padding: 16px;
+      padding: 18px;
       border-radius: 18px;
-      border: 1px solid #dbeafe;
-      background: #eff6ff;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(20,0,0,0.86), rgba(0,0,0,0.9));
+      border: 1px solid rgba(255, 106, 0, 0.45);
+    }
+
+    .detail-content::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url("/static/frame-fire-left.png");
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      opacity: 0.76;
+    }
+
+    .detail-content > * {
+      position: relative;
+      z-index: 1;
     }
 
     .detail-title {
       text-align: center;
-      font-size: 15px;
+      font-size: 17px;
+      color: #ffd166;
       font-weight: 900;
       margin-bottom: 14px;
+      text-shadow: 0 0 9px #ff4b00;
     }
 
     .detail-row {
@@ -276,23 +394,27 @@
     }
 
     .detail-key {
-      color: var(--sub);
-      font-weight: 800;
+      color: #fbbf24;
+      font-weight: 900;
       white-space: nowrap;
     }
 
     .detail-value {
       font-weight: 900;
       text-align: right;
+      color: #fff7ed;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .goenji-text {
-      color: var(--fire);
+      color: #ff4b00;
       font-weight: 900;
       white-space: nowrap;
+      text-shadow:
+        0 0 6px #ff7a00,
+        0 0 14px #ff2200;
     }
 
     .reload {
@@ -300,19 +422,25 @@
       margin-top: 14px;
       border: 0;
       border-radius: 20px;
-      padding: 15px;
-      font-size: 16px;
+      padding: 16px;
+      font-size: 17px;
       font-weight: 900;
-      color: var(--main);
-      background: #fff;
-      box-shadow: 0 8px 18px rgba(15,23,42,0.08);
+      color: #ffd166;
+      background:
+        linear-gradient(135deg, rgba(120, 18, 0, 0.96), rgba(20, 0, 0, 0.96));
+      border: 1px solid rgba(255, 150, 0, 0.8);
+      box-shadow:
+        0 0 14px rgba(255, 72, 0, 0.75),
+        inset 0 0 16px rgba(255, 150, 0, 0.18);
       cursor: pointer;
+      text-shadow: 0 0 8px #ff4b00;
     }
 
     .loading {
-      opacity: 0.6;
-      font-weight: 700;
+      opacity: 0.78;
+      font-weight: 800;
       text-align: center;
+      color: #fef3c7;
     }
   </style>
 </head>
@@ -323,8 +451,8 @@
   <div class="app-header">
     <img class="header-icon" src="/static/icon-512.png" alt="豪炎寺">
     <div>
-      <div class="small">竪川大橋北詰</div>
-      <h1>次のバス</h1>
+      <div class="small">亀21 リアルタイム接近情報</div>
+      <h1>豪炎寺バス</h1>
     </div>
   </div>
 
@@ -332,11 +460,11 @@
 
     <div class="tabs">
       <button id="btn-kameido" class="tab active" onclick="changeDirection('kameido')">
-        亀戸駅方面
+        🔥 亀戸駅方面
       </button>
 
       <button id="btn-toyocho" class="tab" onclick="changeDirection('toyocho')">
-        東陽町方面
+        🚌 東陽町方面
       </button>
     </div>
 
@@ -346,8 +474,10 @@
       <div id="now" class="now">読み込み中...</div>
     </div>
 
+    <img class="fire-divider" src="/static/divider-fire.png" alt="">
+
     <div class="next-box">
-      <div class="next-label">いちばん近いバス</div>
+      <div class="next-label">🔥 いちばん近いバス</div>
 
       <div class="next-main">
         <div id="nextTime" class="next-time">--:--</div>
@@ -360,7 +490,7 @@
     <div id="list" class="list"></div>
 
     <button class="reload" onclick="loadBuses()">
-      ⟳ 更新する
+      ⟳ 更新する（ファイヤー！）
     </button>
 
   </section>
@@ -384,10 +514,13 @@ function calcRemainingMinutes(busTime, nowTime) {
 }
 
 function getRemainingText(diff) {
-  if (diff <= 0) {
-    return "まもなく発車";
-  }
+  if (diff <= 0) return "まもなく発車";
   return `あと ${diff} 分`;
+}
+
+function getGoenjiRemainText(diff) {
+  if (diff <= 0) return "まもなく豪炎寺";
+  return `あと ${diff} 分豪炎寺 🔥`;
 }
 
 function changeDirection(direction) {
@@ -419,13 +552,13 @@ async function loadRealtime(detailId) {
 
     container.innerHTML = `
       <div class="detail-title">
-        接近情報
+        🔥 接近情報
       </div>
 
       <div class="detail-row">
         <div class="detail-key">現在地</div>
         <div class="detail-value">
-         ${data.current_place}
+          ${data.current_place}
         </div>
       </div>
 
@@ -516,7 +649,7 @@ async function loadBuses() {
     const firstDiff = calcRemainingMinutes(firstBus, data.now);
 
     document.getElementById("nextTime").textContent = firstBus;
-    document.getElementById("remaining").textContent = getRemainingText(firstDiff);
+    document.getElementById("remaining").textContent = getGoenjiRemainText(firstDiff);
     document.getElementById("count").textContent =
       `このあと ${data.buses.length} 本あります`;
 
@@ -537,7 +670,7 @@ async function loadBuses() {
             ${
               index === 0
               ? '<span class="badge">次発</span>'
-              : getRemainingText(diff)
+              : getGoenjiRemainText(diff)
             }
 
             <span id="${detailId}-arrow" class="chevron">

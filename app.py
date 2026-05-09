@@ -1,15 +1,21 @@
 from flask import Flask, render_template, jsonify
 from datetime import datetime, timedelta, timezone
+import os
+import requests
 import jpholiday
+
+from google.transit import gtfs_realtime_pb2
 
 app = Flask(__name__)
 
 JST = timezone(timedelta(hours=9))
+ODPT_API_KEY = os.environ.get("ODPT_API_KEY")
+
+ODPT_REALTIME_URL = "https://api.odpt.org/api/v4/gtfs/realtime/ToeiBus"
 
 BUS_TIMES = {
     "kameido": {
         "label": "亀戸駅方面",
-
         "weekday": [
             "07:03", "07:16", "07:32", "07:45", "07:59",
             "08:13", "08:26", "08:39", "08:52",
@@ -28,7 +34,6 @@ BUS_TIMES = {
             "21:15", "21:39",
             "22:04",
         ],
-
         "saturday": [
             "07:02", "07:20", "07:38", "07:56",
             "08:13", "08:30", "08:50",
@@ -47,7 +52,6 @@ BUS_TIMES = {
             "21:05", "21:34",
             "22:04",
         ],
-
         "holiday": [
             "07:14", "07:36", "07:58",
             "08:19", "08:41",
@@ -70,7 +74,6 @@ BUS_TIMES = {
 
     "toyocho": {
         "label": "東陽町方面",
-
         "weekday": [
             "06:40", "06:55",
             "07:08", "07:21", "07:33", "07:45", "07:57",
@@ -90,7 +93,6 @@ BUS_TIMES = {
             "21:12", "21:38",
             "22:04",
         ],
-
         "saturday": [
             "06:39", "06:59",
             "07:19", "07:37", "07:56",
@@ -110,7 +112,6 @@ BUS_TIMES = {
             "21:28",
             "22:04",
         ],
-
         "holiday": [
             "06:54",
             "07:14", "07:34", "07:54",
@@ -171,6 +172,153 @@ def get_remaining_buses(direction_key):
     }
 
 
+def fetch_toei_realtime():
+    if not ODPT_API_KEY:
+        return {
+            "ok": False,
+            "reason": "ODPT_API_KEY が未設定です",
+            "vehicles": [],
+        }
+
+    try:
+        res = requests.get(
+            ODPT_REALTIME_URL,
+            params={"acl:consumerKey": ODPT_API_KEY},
+            timeout=10,
+        )
+        res.raise_for_status()
+
+        feed = gtfs_realtime_pb2.FeedMessage()
+        feed.ParseFromString(res.content)
+
+        vehicles = []
+
+        for entity in feed.entity:
+            if not entity.HasField("vehicle"):
+                continue
+
+            vehicle = entity.vehicle
+
+            trip_id = vehicle.trip.trip_id if vehicle.trip.trip_id else ""
+            route_id = vehicle.trip.route_id if vehicle.trip.route_id else ""
+            vehicle_id = vehicle.vehicle.id if vehicle.vehicle.id else ""
+            stop_id = vehicle.stop_id if vehicle.stop_id else ""
+
+            lat = None
+            lon = None
+
+            if vehicle.HasField("position"):
+                lat = vehicle.position.latitude
+                lon = vehicle.position.longitude
+
+            vehicles.append({
+                "entity_id": entity.id,
+                "trip_id": trip_id,
+                "route_id": route_id,
+                "vehicle_id": vehicle_id,
+                "stop_id": stop_id,
+                "latitude": lat,
+                "longitude": lon,
+            })
+
+        return {
+            "ok": True,
+            "reason": "",
+            "vehicles": vehicles,
+        }
+
+    except Exception as e:
+        return {
+            "ok": False,
+            "reason": str(e),
+            "vehicles": [],
+        }
+
+
+def is_kame21_vehicle(vehicle):
+    text = " ".join([
+        vehicle.get("trip_id", ""),
+        vehicle.get("route_id", ""),
+        vehicle.get("vehicle_id", ""),
+        vehicle.get("entity_id", ""),
+    ])
+
+    keywords = [
+        "亀21",
+        "亀２１",
+        "kame21",
+        "Kame21",
+        "KAME21",
+        "K21",
+    ]
+
+    return any(k in text for k in keywords)
+
+
+def get_realtime_info(direction_key):
+    realtime = fetch_toei_realtime()
+
+    if not realtime["ok"]:
+        return {
+            "ok": False,
+            "status": "error",
+            "message": realtime["reason"],
+            "current_place": "取得できません",
+            "stop_count": "--",
+            "goenji": "--",
+            "vehicle_id": "--",
+            "raw_count": 0,
+        }
+
+    all_vehicles = realtime["vehicles"]
+
+    kame21_vehicles = [
+        v for v in all_vehicles
+        if is_kame21_vehicle(v)
+    ]
+
+    # 最初は方向判定が不確実なので、亀21っぽい車両を優先。
+    # 見つからなければ都バス車両の先頭を仮表示。
+    if kame21_vehicles:
+        target = kame21_vehicles[0]
+    elif all_vehicles:
+        target = all_vehicles[0]
+    else:
+        target = None
+
+    if not target:
+        return {
+            "ok": True,
+            "status": "no_vehicle",
+            "message": "現在走行中の車両が見つかりませんでした",
+            "current_place": "車両なし",
+            "stop_count": "--",
+            "goenji": "なし",
+            "vehicle_id": "--",
+            "raw_count": 0,
+        }
+
+    direction_label = BUS_TIMES.get(direction_key, {}).get("label", "")
+
+    return {
+        "ok": True,
+        "status": "success",
+        "message": "リアルタイム情報を取得しました",
+        "direction": direction_label,
+        "current_place": "位置情報取得済み",
+        "stop_count": "確認中",
+        "goenji": "確認中",
+        "vehicle_id": target.get("vehicle_id") or target.get("entity_id") or "--",
+        "route_id": target.get("route_id") or "--",
+        "trip_id": target.get("trip_id") or "--",
+        "stop_id": target.get("stop_id") or "--",
+        "latitude": target.get("latitude"),
+        "longitude": target.get("longitude"),
+        "raw_count": len(all_vehicles),
+        "kame21_count": len(kame21_vehicles),
+    }
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -182,6 +330,30 @@ def buses(direction):
         return jsonify({"error": "invalid direction"}), 404
 
     return jsonify(get_remaining_buses(direction))
+
+
+@app.route("/api/realtime/<direction>")
+def realtime(direction):
+    if direction not in BUS_TIMES:
+        return jsonify({"error": "invalid direction"}), 404
+
+    return jsonify(get_realtime_info(direction))
+
+
+@app.route("/api/realtime-debug")
+def realtime_debug():
+    realtime = fetch_toei_realtime()
+
+    vehicles = realtime.get("vehicles", [])
+
+    sample = vehicles[:20]
+
+    return jsonify({
+        "ok": realtime["ok"],
+        "reason": realtime["reason"],
+        "count": len(vehicles),
+        "sample": sample,
+    })
 
 
 if __name__ == "__main__":

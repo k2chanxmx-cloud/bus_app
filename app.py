@@ -10,14 +10,15 @@ app = Flask(__name__)
 
 JST = timezone(timedelta(hours=9))
 ODPT_API_KEY = os.environ.get("ODPT_API_KEY")
+
 ODPT_REALTIME_URL = "https://api.odpt.org/api/v4/gtfs/realtime/ToeiBus"
+
+TARGET_ROUTE_ID = "058"
 
 # 竪川大橋北詰あたり
 TARGET_LAT = 35.6960
 TARGET_LON = 139.8225
-
-# 近くの車両を拾う範囲。まずは広め
-SEARCH_RADIUS_KM = 3.0
+SEARCH_RADIUS_KM = 5.0
 
 BUS_TIMES = {
     "kameido": {
@@ -271,7 +272,22 @@ def fetch_toei_realtime():
         }
 
 
-def get_nearby_vehicles():
+def is_target_direction(vehicle, direction_key):
+    trip_id = vehicle.get("trip_id", "")
+
+    # 亀21 route_id=058 の trip_id は
+    # 60001-1-... と 60001-2-... のように方向らしき値が入る。
+    # いったん以下で仮振り分け。
+    if direction_key == "kameido":
+        return "-1-" in trip_id
+
+    if direction_key == "toyocho":
+        return "-2-" in trip_id
+
+    return True
+
+
+def get_target_vehicles(direction_key):
     realtime = fetch_toei_realtime()
 
     if not realtime["ok"]:
@@ -279,17 +295,24 @@ def get_nearby_vehicles():
 
     vehicles = realtime["vehicles"]
 
-    nearby = [
-        v for v in vehicles
-        if v.get("distance_km") is not None and v["distance_km"] <= SEARCH_RADIUS_KM
-    ]
+    target = []
 
-    nearby.sort(key=lambda x: x["distance_km"])
+    for v in vehicles:
+        if v.get("route_id") != TARGET_ROUTE_ID:
+            continue
+
+        if not is_target_direction(v, direction_key):
+            continue
+
+        if v.get("distance_km") is not None and v["distance_km"] <= SEARCH_RADIUS_KM:
+            target.append(v)
+
+    target.sort(key=lambda x: x["distance_km"] if x.get("distance_km") is not None else 9999)
 
     return {
         "ok": True,
         "reason": "",
-        "vehicles": nearby,
+        "vehicles": target,
         "all_count": len(vehicles),
     }
 
@@ -298,26 +321,30 @@ def guess_place(distance):
     if distance is None:
         return "位置情報あり"
 
-    if distance <= 0.3:
+    if distance <= 0.25:
         return "竪川大橋北詰付近"
-    elif distance <= 0.8:
+    elif distance <= 0.7:
         return "かなり近く"
     elif distance <= 1.5:
         return "周辺を走行中"
-    else:
+    elif distance <= 3.0:
         return "少し離れた場所"
+    else:
+        return "遠め"
 
 
 def get_stop_count_text(distance):
     if distance is None:
         return "確認中"
 
-    if distance <= 0.3:
+    if distance <= 0.25:
         return "まもなく"
-    elif distance <= 0.8:
+    elif distance <= 0.7:
         return "あと1〜2停留所"
     elif distance <= 1.5:
         return "あと2〜4停留所"
+    elif distance <= 3.0:
+        return "あと4停留所以上"
     else:
         return "確認中"
 
@@ -326,22 +353,24 @@ def get_goenji_text(distance):
     if distance is None:
         return "確認中"
 
-    if distance <= 0.3:
+    if distance <= 0.25:
         return "なし"
     elif distance <= 1.0:
         return "少し豪炎寺"
+    elif distance <= 3.0:
+        return "豪炎寺中"
     else:
         return "確認中"
 
 
 def get_realtime_info(direction_key):
-    nearby_result = get_nearby_vehicles()
+    result = get_target_vehicles(direction_key)
 
-    if not nearby_result["ok"]:
+    if not result["ok"]:
         return {
             "ok": False,
             "status": "error",
-            "message": nearby_result["reason"],
+            "message": result["reason"],
             "current_place": "取得できません",
             "stop_count": "--",
             "goenji": "--",
@@ -350,36 +379,36 @@ def get_realtime_info(direction_key):
             "trip_id": "--",
             "stop_id": "--",
             "distance_km": None,
-            "nearby_count": 0,
+            "target_count": 0,
             "all_count": 0,
         }
 
-    nearby = nearby_result["vehicles"]
+    vehicles = result["vehicles"]
 
-    if not nearby:
+    if not vehicles:
         return {
             "ok": True,
             "status": "no_vehicle",
-            "message": "竪川大橋北詰付近の車両が見つかりませんでした",
+            "message": "亀21の該当方面の車両が近くに見つかりませんでした",
             "current_place": "近くの車両なし",
             "stop_count": "--",
             "goenji": "確認中",
             "vehicle_id": "--",
-            "route_id": "--",
+            "route_id": TARGET_ROUTE_ID,
             "trip_id": "--",
             "stop_id": "--",
             "distance_km": None,
-            "nearby_count": 0,
-            "all_count": nearby_result.get("all_count", 0),
+            "target_count": 0,
+            "all_count": result.get("all_count", 0),
         }
 
-    target = nearby[0]
+    target = vehicles[0]
     distance = target.get("distance_km")
 
     return {
         "ok": True,
         "status": "success",
-        "message": "リアルタイム情報を取得しました",
+        "message": "亀21のリアルタイム情報を取得しました",
         "direction": BUS_TIMES[direction_key]["label"],
         "current_place": guess_place(distance),
         "stop_count": get_stop_count_text(distance),
@@ -391,8 +420,8 @@ def get_realtime_info(direction_key):
         "latitude": target.get("latitude"),
         "longitude": target.get("longitude"),
         "distance_km": distance,
-        "nearby_count": len(nearby),
-        "all_count": nearby_result.get("all_count", 0),
+        "target_count": len(vehicles),
+        "all_count": result.get("all_count", 0),
     }
 
 
@@ -422,8 +451,13 @@ def realtime_debug():
     realtime = fetch_toei_realtime()
     vehicles = realtime.get("vehicles", [])
 
-    vehicles_sorted = sorted(
-        vehicles,
+    route_058 = [
+        v for v in vehicles
+        if v.get("route_id") == TARGET_ROUTE_ID
+    ]
+
+    route_058_sorted = sorted(
+        route_058,
         key=lambda v: v["distance_km"] if v.get("distance_km") is not None else 9999
     )
 
@@ -435,44 +469,28 @@ def realtime_debug():
             "latitude": TARGET_LAT,
             "longitude": TARGET_LON,
             "search_radius_km": SEARCH_RADIUS_KM,
+            "target_route_id": TARGET_ROUTE_ID,
         },
-        "count": len(vehicles),
-        "nearby_sample": vehicles_sorted[:30],
+        "all_count": len(vehicles),
+        "route_058_count": len(route_058),
+        "route_058_sample": route_058_sorted[:20],
     })
 
 
-@app.route("/api/nearby-routes")
-def nearby_routes():
-    nearby_result = get_nearby_vehicles()
+@app.route("/api/realtime-debug/<direction>")
+def realtime_debug_direction(direction):
+    if direction not in BUS_TIMES:
+        return jsonify({"error": "invalid direction"}), 404
 
-    if not nearby_result["ok"]:
-        return jsonify(nearby_result)
-
-    routes = {}
-
-    for v in nearby_result["vehicles"]:
-        route_id = v.get("route_id") or "unknown"
-
-        if route_id not in routes:
-            routes[route_id] = {
-                "route_id": route_id,
-                "count": 0,
-                "vehicles": [],
-            }
-
-        routes[route_id]["count"] += 1
-        routes[route_id]["vehicles"].append(v)
+    result = get_target_vehicles(direction)
 
     return jsonify({
-        "ok": True,
-        "target": {
-            "name": "竪川大橋北詰",
-            "latitude": TARGET_LAT,
-            "longitude": TARGET_LON,
-            "search_radius_km": SEARCH_RADIUS_KM,
-        },
-        "route_count": len(routes),
-        "routes": list(routes.values()),
+        "ok": result["ok"],
+        "reason": result["reason"],
+        "direction": direction,
+        "direction_label": BUS_TIMES[direction]["label"],
+        "count": len(result.get("vehicles", [])),
+        "vehicles": result.get("vehicles", []),
     })
 
 

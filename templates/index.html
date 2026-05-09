@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-  <title>豪炎寺バス</title>
+  <title>待たせたな…</title>
 
   <link rel="manifest" href="/static/manifest.json" />
   <meta name="theme-color" content="#050000" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="豪炎寺バス" />
+  <meta name="apple-mobile-web-app-title" content="待たせたな…" />
   <link rel="apple-touch-icon" href="/static/icon-512.png" />
 
   <style>
@@ -722,7 +722,7 @@ async function loadBuses() {
     if (!data.buses || data.buses.length === 0) {
       document.getElementById("nextTime").textContent = "終了";
       document.getElementById("remaining").textContent = "--";
-      document.getElementById("count").textContent = "本日の残りの便はありません";
+      document.getElementById("count").textContent = "今日の残りの便はないぞ";
       return;
     }
 
@@ -764,7 +764,7 @@ async function loadBuses() {
   } catch (e) {
     document.getElementById("nextTime").textContent = "エラー";
     document.getElementById("remaining").textContent = "--";
-    document.getElementById("count").textContent = "時刻表を取得できませんでした";
+    document.getElementById("count").textContent = "時刻表を取得できなかった";
   }
 }
 
